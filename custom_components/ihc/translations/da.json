@@ -1,0 +1,22 @@
+{
+    "config": {
+        "error": {
+            "cannot_connect": "Kan ikke forbinde til IHC controlleren",
+            "authentication_failed": "Godkendelse fejlede. Brugernavn/adgangskode er forkert",
+            "unknown": "Ukendt fejl",
+            "already_setup": "Denne controller er allerede opsat"
+        },
+        "step": {
+            "user": {
+                "description": "Tilføj din IHC controller til Home Assistant",
+                "data": {
+                    "url": "Url",
+                    "username": "Brugernavn",
+                    "auto_setup": "Autosetup",
+                    "info": "Info (tilføjer  IHC navn,note and position som attributer)"
+                }
+            }
+        }
+    },
+    "title": "IHC"
+}

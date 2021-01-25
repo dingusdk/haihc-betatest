@@ -1,0 +1,28 @@
+{
+  "name": "ihcbeta",
+  "image": "ludeeus/container:integration",
+  "context": "..",
+  "postCreateCommand": "",
+  "runArgs": [],
+  "appPort": [
+    "8123:8123"
+  ],
+  "settings": {
+    "files.eol": "\n",
+    "editor.tabSize": 2,
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "files.trimTrailingWhitespace": true,
+    "yaml.customTags": [
+      "!secret scalar"
+    ]
+  },
+  "extensions": [
+    "ms-python.python",
+    "github.vscode-pull-request-github",
+    "ryanluker.vscode-coverage-gutters",
+    "ms-python.vscode-pylance"
+  ],
+}

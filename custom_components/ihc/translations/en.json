@@ -1,0 +1,32 @@
+{
+    "config": {
+        "error": {
+            "cannot_connect": "Cannot not connect to the IHC controller",
+            "authentication_failed": "Authentication failed. Username/password is not correct",
+            "unknown": "Unknown error",
+            "already_setup": "This controller is already setup"
+        },
+        "step": {
+            "user": {
+                "description": "Add your IHC controller to Home Assistant",
+                "data": {
+                    "url": "Url",
+                    "username": "Username",
+                    "password": "Password",
+                    "auto_setup": "Autosetup"
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "description": "IHC controller options",
+                "data": {
+                    "info": "Info (add IHC name,note and position as attributes)"
+                }
+            }
+        }
+    },
+    "title": "IHC"
+}

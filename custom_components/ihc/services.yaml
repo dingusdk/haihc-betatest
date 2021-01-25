@@ -1,0 +1,54 @@
+# Describes the format for available IHC services
+
+set_runtime_value_bool:
+  description: Set a boolean runtime value on the IHC controller.
+  fields:
+    controller_id:
+      description: |
+        If you have only one controller you can skip this parameter
+      example: CNxxxxxxx
+    ihc_id:
+      description: The integer IHC resource ID.
+      example: 123456
+    value:
+      description: The boolean value to set.
+      example: true
+
+set_runtime_value_int:
+  description: Set an integer runtime value on the IHC controller.
+  fields:
+    controller_id:
+      description: |
+        If you have only one controller you can skip this parameter
+      example: CNxxxxxxx
+    ihc_id:
+      description: The integer IHC resource ID.
+      example: 123456
+    value:
+      description: The integer value to set.
+      example: 50
+
+set_runtime_value_float:
+  description: Set a float runtime value on the IHC controller.
+  fields:
+    controller_id:
+      description: |
+        If you have only one controller you can skip this parameter
+      example: CNxxxxxxx
+    ihc_id:
+      description: The integer IHC resource ID.
+      example: 123456
+    value:
+      description: The float value to set.
+      example: 1.47
+
+pulse:
+  description: Pulses an input on the IHC controller.
+  fields:
+    controller_id:
+      description: |
+        If you have only one controller you can skip this parameter
+      example: CNxxxxxxx
+    ihc_id:
+      description: The integer IHC resource ID.
+      example: 123456

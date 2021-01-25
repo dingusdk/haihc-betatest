@@ -1,0 +1,12 @@
+{
+    "name": "IHC Beta Test Integration",
+    "hacs": "1.6.0",
+    "domains": [
+        "binary_sensor",
+        "light",
+        "sensor",
+        "switch"
+    ],
+    "iot_class": "Local Push",
+    "homeassistant": "0.118.0"
+}
