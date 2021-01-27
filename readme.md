@@ -4,6 +4,8 @@ This is a Home Assistant Custom integration for beta testing the IHC integration
 I will used this when making some bigger changes to the IHC integration in Home Assisant for beta testing before the code is commited to the main Home Assistant.
 This makes it easier for you to do testing, and it also makes it easier and faster to do changes without having to wait for a PR in home assistant.
 
+[Read more about it here](https://www.dingus.dk/help-testing-the-new-home-assistant-ihc-integration/)
+
 ## Installing
 
 Intall using [hacs](https://hacs.xyz/).
@@ -26,8 +28,7 @@ Currently the beta testing has these changes:
 * Extra attribute to identify the IHC controller on an entity. (When you have multiple IHC controllers)
 * Migrating old manual config to new ihc_manual_setup.yaml file
 
-See [dingus.dk](https://www.dingus.dk) for more infomation.
 Also see [Home Assistant IHC itegration](https://github.com/dingusdk/home-assistant.io/blob/current/source/_integrations/ihc.markdown)
-This my fork of the Home assistant web page - and I will try to keep it updated with this beta.
+This my fork of the Home assistant documentation web page - and I will try to keep it updated with this beta.
 
 
