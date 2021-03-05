@@ -2,8 +2,7 @@
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.const import CONF_TYPE
 
-from . import DOMAIN, IHC_CONTROLLER
-from .const import CONF_INVERTING
+from .const import CONF_INVERTING, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
 
 

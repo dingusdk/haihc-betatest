@@ -15,5 +15,6 @@ logger:
   default: warn
   logs:
     custom_components.ihc: debug
-# debugpy:
-#   wait: true
+
+debugpy:
+  wait: true

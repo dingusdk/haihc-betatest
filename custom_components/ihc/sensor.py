@@ -2,7 +2,7 @@
 from homeassistant.const import CONF_UNIT_OF_MEASUREMENT
 from homeassistant.helpers.entity import Entity
 
-from . import DOMAIN, IHC_CONTROLLER, IHC_INFO
+from .const import CONF_INFO, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
 
 
@@ -18,7 +18,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         # Find controller that corresponds with device id
         ctrl_id = device["ctrl_id"]
         ihc_key = f"ihc{ctrl_id}"
-        info = hass.data[ihc_key][IHC_INFO]
+        info = hass.data[ihc_key][CONF_INFO]
         ihc_controller = hass.data[ihc_key][IHC_CONTROLLER]
         unit = product_cfg[CONF_UNIT_OF_MEASUREMENT]
         sensor = IHCSensor(ihc_controller, name, ihc_id, info, unit, product)
@@ -40,7 +40,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             product = device["product"]
             unit = product_cfg[CONF_UNIT_OF_MEASUREMENT]
             sensor = IHCSensor(
-                ihc_controller, controller_id, name, ihc_id, unit, product
+                ihc_controller,
+                controller_id,
+                name,
+                ihc_id,
+                unit,
+                product,
             )
             sensors.append(sensor)
         async_add_entities(sensors)
@@ -50,7 +55,13 @@ class IHCSensor(IHCDevice, Entity):
     """Implementation of the IHC sensor."""
 
     def __init__(
-        self, ihc_controller, controller_id, name, ihc_id: int, unit, product=None
+        self,
+        ihc_controller,
+        controller_id,
+        name,
+        ihc_id: int,
+        unit,
+        product=None,
     ) -> None:
         """Initialize the IHC sensor."""
         super().__init__(ihc_controller, controller_id, name, ihc_id, product)

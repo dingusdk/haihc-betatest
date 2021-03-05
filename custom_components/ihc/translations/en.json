@@ -13,7 +13,8 @@
                     "url": "Url",
                     "username": "Username",
                     "password": "Password",
-                    "auto_setup": "Autosetup"
+                    "auto_setup": "Autosetup",
+                    "use_groups": "Use IHC groups as suggested areas"
                 }
             }
         }

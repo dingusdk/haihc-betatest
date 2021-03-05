@@ -5,8 +5,7 @@ from homeassistant.components.light import (
     LightEntity,
 )
 
-from . import DOMAIN, IHC_CONTROLLER
-from .const import CONF_DIMMABLE, CONF_OFF_ID, CONF_ON_ID
+from .const import CONF_DIMMABLE, CONF_OFF_ID, CONF_ON_ID, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
 from .util import async_pulse, async_set_bool, async_set_int
 

@@ -2,8 +2,7 @@
 import logging
 from homeassistant.components.switch import SwitchEntity
 
-from . import DOMAIN, IHC_CONTROLLER, IHC_INFO
-from .const import CONF_OFF_ID, CONF_ON_ID
+from .const import CONF_INFO, CONF_OFF_ID, CONF_ON_ID, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
 from .util import async_pulse, async_set_bool
 
@@ -22,11 +21,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         # Find controller that corresponds with device id
         ctrl_id = device["ctrl_id"]
         ihc_key = f"ihc{ctrl_id}"
-        info = hass.data[ihc_key][IHC_INFO]
+        info = hass.data[ihc_key][CONF_INFO]
         ihc_controller = hass.data[ihc_key][IHC_CONTROLLER]
         ihc_off_id = product_cfg.get(CONF_OFF_ID)
         ihc_on_id = product_cfg.get(CONF_ON_ID)
-
         switch = IHCSwitch(
             ihc_controller, name, ihc_id, ihc_off_id, ihc_on_id, info, product
         )

@@ -13,7 +13,7 @@ from homeassistant.const import (
 from homeassistant.core import callback
 from homeassistant.helpers.typing import HomeAssistantType
 
-from .const import CONF_AUTOSETUP, CONF_INFO, DOMAIN
+from .const import CONF_AUTOSETUP, CONF_INFO, CONF_USE_GROUPS, DOMAIN
 from . import get_options_value
 
 CONFIG_FLOW_VERSION = 1
@@ -25,6 +25,7 @@ DATA_SCHEMA = vol.Schema(
         vol.Required(CONF_USERNAME, default=""): str,
         vol.Required(CONF_PASSWORD, default=""): str,
         vol.Optional(CONF_AUTOSETUP, default=True): bool,
+        vol.Optional(CONF_USE_GROUPS, default=True): bool,
     }
 )
 

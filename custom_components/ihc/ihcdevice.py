@@ -24,10 +24,12 @@ class IHCDevice(Entity):
         self.ihc_id = ihc_id
         self.controller_id = controller_id
         self.device_id = None
+        self.suggested_area = None
         if product:
             self.ihc_name = product["name"]
             self.ihc_note = product["note"]
             self.ihc_position = product["position"]
+            self.suggested_area = product["group"] if "group" in product else None
             if "id" in product:
                 product_id = product["id"]
                 self.device_id = f"{controller_id}_{product_id }"
@@ -97,6 +99,7 @@ class IHCDevice(Entity):
             },
             "name": self.device_name,
             "manufacturer": "Schneider Electric",
+            "suggested_area": self.suggested_area,
             "model": self.device_model,
             "sw_version": "",
             "via_device": ("ihc", self.controller_id),
