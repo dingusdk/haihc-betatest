@@ -93,7 +93,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     username = entry.data[CONF_USERNAME]
     password = entry.data[CONF_PASSWORD]
     autosetup = entry.data[CONF_AUTOSETUP]
-    use_groups = entry.data[CONF_USE_GROUPS]
+    use_groups = entry.data[CONF_USE_GROUPS] if CONF_USE_GROUPS in entry.data else False
     info = get_options_value(entry, CONF_INFO, True)
     ihc_controller = IHCController(url, username, password)
     if not await hass.async_add_executor_job(ihc_controller.authenticate):
