@@ -95,12 +95,12 @@ class IHCDevice(Entity):
         return {
             "identifiers": {
                 # Serial numbers are unique identifiers within a specific domain
-                ("ihc", self.device_id)
+                (DOMAIN, self.device_id)
             },
             "name": self.device_name,
             "manufacturer": "Schneider Electric",
             "suggested_area": self.suggested_area,
             "model": self.device_model,
             "sw_version": "",
-            "via_device": ("ihc", self.controller_id),
+            "via_device": (DOMAIN, self.controller_id),
         }

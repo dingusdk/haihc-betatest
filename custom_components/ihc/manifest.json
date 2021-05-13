@@ -9,5 +9,6 @@
   "codeowners": [
     "@dingusdk"
   ],
-  "config_flow": true
+  "config_flow": true,
+  "version": "2021.5.1"
 }
