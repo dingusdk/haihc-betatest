@@ -12,7 +12,6 @@ from .util import async_pulse, async_set_bool, async_set_int
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Load IHC lights based on a config entry."""
-
     controller_id = config_entry.unique_id
     data = hass.data[DOMAIN][controller_id]
     ihc_controller = data[IHC_CONTROLLER]

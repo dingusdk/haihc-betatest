@@ -1,7 +1,7 @@
 homeassistant:
   name: Home
   unit_system: metric
-  time_zone: Europe/Copenhagen
+#  time_zone: "Europe/Copenhagen"
 
 frontend:
 config:
@@ -16,5 +16,5 @@ logger:
   logs:
     custom_components.ihc: debug
 
-debugpy:
-  wait: true
+#debugpy:
+#  wait: true

@@ -1,3 +1,4 @@
+"""Handle auto setup of IHC products from the ihc project file."""
 import logging
 import os.path
 
@@ -91,7 +92,6 @@ def autosetup_ihc_products(
     hass: HomeAssistant, ihc_controller, controller_id, use_groups: bool
 ):
     """Auto setup of IHC products from the IHC project file."""
-
     project_xml = ihc_controller.get_project()
     if not project_xml:
         _LOGGER.error("Unable to read project from IHC controller")

@@ -1,3 +1,4 @@
+"""Handle manual setup of ihc resources as entities in Home Assistant."""
 import logging
 import os.path
 
@@ -127,13 +128,13 @@ def manual_setup(hass: HomeAssistant, controller_id):
 
     # Find the controller config for this controller
     controller_conf = None
-    for x in ihc_conf:
-        if x["controller"] == controller_id:
-            controller_conf = x
+    for conf in ihc_conf:
+        if conf["controller"] == controller_id:
+            controller_conf = conf
             break
-    if not controller_conf:
+    if controller_conf is None:
         return
-    """Get manual configuration for IHC devices."""
+    # Get manual configuration for IHC devices
     for component in IHC_PLATFORMS:
         discovery_info = {}
         if component in controller_conf:

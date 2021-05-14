@@ -34,7 +34,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Load IHC switches based on a config entry."""
-
     controller_id = config_entry.unique_id
     data = hass.data[DOMAIN][controller_id]
     ihc_controller = data[IHC_CONTROLLER]

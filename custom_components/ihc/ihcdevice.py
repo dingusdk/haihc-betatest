@@ -46,7 +46,7 @@ class IHCDevice(Entity):
 
     async def async_added_to_hass(self):
         """Add callback for IHC changes."""
-        _LOGGER.debug(f"Adding IHC entity notify event: {self.ihc_id}")
+        _LOGGER.debug("Adding IHC entity notify event: %s", self.ihc_id)
         self.ihc_controller.add_notify_event(self.ihc_id, self.on_ihc_change, True)
 
     @property
@@ -90,6 +90,7 @@ class IHCDevice(Entity):
 
     @property
     def device_info(self):
+        """Return the device info."""
         if not self.device_id:
             return None
         return {

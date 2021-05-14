@@ -87,7 +87,6 @@ def setup(hass: HomeAssistant, config):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up the IHC Controller from a config entry."""
-
     controller_id = entry.unique_id
     url = entry.data[CONF_URL]
     username = entry.data[CONF_USERNAME]
@@ -155,7 +154,7 @@ def get_options_value(config_entry, key, default):
 async def setup_controller_device(
     hass: HomeAssistant, ihc_controller, entry: ConfigEntry
 ):
-    """Setup the IHC controller as a HA device """
+    """Register the IHC controller as a Home Assistant device."""
     controller_id = entry.unique_id
     system_info = await hass.async_add_executor_job(
         ihc_controller.client.get_system_info

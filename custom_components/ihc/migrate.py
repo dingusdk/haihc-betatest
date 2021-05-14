@@ -1,3 +1,4 @@
+"""Migrate old manual configuration from configuration.yaml."""
 import logging
 import os.path
 import yaml
@@ -19,14 +20,12 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def migrate_configuration(hass: HomeAssistant):
-    """Migrate the old manual configuration from configuration.yaml
-    to ihc_manual_setyp.yaml
-    """
+    """Migrate the old manual configuration from configuration.yaml to ihc_manual_setup.yaml."""
     yaml_manual_setup_path = hass.config.path(MANUAL_SETUP_YAML)
     if os.path.exists(yaml_manual_setup_path):
         _LOGGER.warning(
-            f"The {yaml_manual_setup_path} already exist."
-            "Migrating old configuration skipped"
+            "The %s already exist. Migrating old configuration skipped",
+            yaml_manual_setup_path,
         )
         return
     # We will load the configuration.yaml file to get the 'ihc' section
@@ -62,11 +61,12 @@ def migrate_configuration(hass: HomeAssistant):
         yaml.dump(newconf, file, default_flow_style=False, sort_keys=False)
     _LOGGER.warning(
         "Your old ihc configuration in configuration.yaml "
-        f"file has been copied to the file {yaml_manual_setup_path} "
+        "file has been copied to the file %s"
         "You can now delete the ihc section in configuration.yaml. "
         "Restart Home Assistant and add the IHC controller through the UI. "
         "See https://www.home-assistant.io/integrations/ihc/"
-        " for more information"
+        " for more information",
+        yaml_manual_setup_path,
     )
     return
 
@@ -82,7 +82,7 @@ def get_controller_serial(controllerconf):
     if not controller.authenticate():
         raise Exception("unable to authencitate on IHC controller")
     system_info = controller.client.get_system_info()
-    _LOGGER.debug(f"IHC system info {system_info}")
+    _LOGGER.debug("IHC system info %s", system_info)
     serial = system_info["serial_number"]
     controller.disconnect()
     return serial
