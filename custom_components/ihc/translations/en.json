@@ -2,7 +2,7 @@
     "config": {
         "error": {
             "cannot_connect": "Cannot not connect to the IHC controller",
-            "authentication_failed": "Authentication failed. Username/password is not correct",
+            "invalid_auth": "Authentication failed. Username/password is not correct",
             "unknown": "Unknown error",
             "already_setup": "This controller is already setup"
         },

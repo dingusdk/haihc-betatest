@@ -2,7 +2,7 @@
     "config": {
         "error": {
             "cannot_connect": "Kan ikke forbinde til IHC controlleren",
-            "authentication_failed": "Godkendelse fejlede. Brugernavn/adgangskode er forkert",
+            "invalid_auth": "Godkendelse fejlede. Brugernavn/adgangskode er forkert",
             "unknown": "Ukendt fejl",
             "already_setup": "Denne controller er allerede opsat"
         },

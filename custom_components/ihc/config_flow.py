@@ -43,10 +43,21 @@ def dovalidate(hass: HomeAssistantType, user_input) -> str:
     if not IHCController.is_ihc_controller(url):
         raise CannotConnect()
     ihc_controller = IHCController(url, username, password)
-    if not ihc_controller.authenticate():
-        raise CannotAuthenticate()
+    try:
+        if not ihc_controller.authenticate():
+            raise InvalidAuth()
+        serial = get_controller_serial(ihc_controller)
+    finally:
+        ihc_controller.disconnect()
+    return serial
+
+
+def get_controller_serial(ihc_controller: IHCController) -> str:
+    """Get the controller serial number.
+
+    Having the function makes it easier to patch for testing
+    """
     info = ihc_controller.client.get_system_info()
-    ihc_controller.disconnect()
     return info["serial_number"]
 
 
@@ -69,8 +80,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(title="IHC Controller", data=user_input)
             except CannotConnect:
                 errors["base"] = "cannot_connect"
-            except CannotAuthenticate:
-                errors["base"] = "authentication_failed"
+            except InvalidAuth:
+                errors["base"] = "invalid_auth"
             except AbortFlow:
                 errors["base"] = "already_setup"
             except Exception:  # pylint: disable=broad-except
@@ -92,7 +103,7 @@ class CannotConnect(exceptions.HomeAssistantError):
     """Error to indicate we cannot connect."""
 
 
-class CannotAuthenticate(exceptions.HomeAssistantError):
+class InvalidAuth(exceptions.HomeAssistantError):
     """Error to indicate we cannot authenticate."""
 
 

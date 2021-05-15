@@ -2,7 +2,7 @@
     "config": {
         "error": {
             "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
-            "authentication_failed": "Authentication failed. Username/password is not correct",
+            "invalid_auth": "Authentication failed. Username/password is not correct",
             "unknown": "[%key:common::config_flow::error::unknown%]",
             "already_setup": "This controller is already setup"
         },
