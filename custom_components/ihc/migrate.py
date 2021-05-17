@@ -1,18 +1,13 @@
 """Migrate old manual configuration from configuration.yaml."""
 import logging
 import os.path
-import yaml
 
 from ihcsdk.ihccontroller import IHCController
+import yaml
 
 from homeassistant.config import load_yaml_config_file
+from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME
 from homeassistant.core import HomeAssistant
-
-from homeassistant.const import (
-    CONF_PASSWORD,
-    CONF_URL,
-    CONF_USERNAME,
-)
 
 from .const import DOMAIN, IHC_PLATFORMS, MANUAL_SETUP_YAML
 
@@ -34,7 +29,7 @@ def migrate_configuration(hass: HomeAssistant):
     _LOGGER.debug("Migrating old IHC configuration")
     yaml_path = hass.config.path("configuration.yaml")
     conf = load_yaml_config_file(yaml_path)[DOMAIN]
-    newconf = {DOMAIN: []}
+    newconf: dict = {DOMAIN: []}
     has_manual_config = False
     if not isinstance(conf, list):
         conf = [conf]

@@ -1,54 +1,121 @@
 # Describes the format for available IHC services
 
 set_runtime_value_bool:
+  name: Set runtime value boolean
   description: Set a boolean runtime value on the IHC controller.
   fields:
     controller_id:
+      name: Controller ID
       description: |
+        The controller ID is the serial number of the IHC controller.
         If you have only one controller you can skip this parameter
-      example: CNxxxxxxx
+      example: CN1234
+      selector:
+        text:
     ihc_id:
+      name: IHC ID
       description: The integer IHC resource ID.
+      required: true
       example: 123456
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
     value:
+      name: Value
       description: The boolean value to set.
+      required: true
       example: true
+      selector:
+        boolean:
 
 set_runtime_value_int:
+  name: Set runtime value integer
   description: Set an integer runtime value on the IHC controller.
   fields:
     controller_id:
+      name: Controller ID
       description: |
+        The controller ID is the serial number of the IHC controller.
         If you have only one controller you can skip this parameter
-      example: CNxxxxxxx
+      example: CN1234
+      selector:
+        text:
     ihc_id:
+      name: IHC ID
       description: The integer IHC resource ID.
+      required: true
       example: 123456
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
     value:
+      name: Value
       description: The integer value to set.
+      required: true
       example: 50
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
 
 set_runtime_value_float:
+  name: Set runtime value float
   description: Set a float runtime value on the IHC controller.
   fields:
     controller_id:
+      name: Controller ID
       description: |
+        The controller ID is the serial number of the IHC controller.
         If you have only one controller you can skip this parameter
-      example: CNxxxxxxx
+      example: CN1234
+      selector:
+        text:
     ihc_id:
+      name: IHC ID
       description: The integer IHC resource ID.
+      required: true
       example: 123456
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
     value:
+      name: Value
       description: The float value to set.
+      required: true
       example: 1.47
+      selector:
+        number:
+          min: 0
+          max: 10000
+          step: 0.01
+          mode: box
 
 pulse:
+  name: Pulse
   description: Pulses an input on the IHC controller.
   fields:
     controller_id:
+      name: Controller ID
       description: |
+        The controller ID is the serial number of the IHC controller.
         If you have only one controller you can skip this parameter
-      example: CNxxxxxxx
+      example: CN1234
+      selector:
+        text:
     ihc_id:
+      name: IHC ID
       description: The integer IHC resource ID.
+      required: true
       example: 123456
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box

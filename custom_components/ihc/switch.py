@@ -1,5 +1,6 @@
 """Support for IHC switches."""
 import logging
+
 from homeassistant.components.switch import SwitchEntity
 
 from .const import CONF_INFO, CONF_OFF_ID, CONF_ON_ID, DOMAIN, IHC_CONTROLLER

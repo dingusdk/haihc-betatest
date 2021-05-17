@@ -17,7 +17,7 @@ from .const import (
     SERVICE_SET_RUNTIME_VALUE_FLOAT,
     SERVICE_SET_RUNTIME_VALUE_INT,
 )
-from .util import async_pulse, async_set_bool, async_set_int, async_set_float
+from .util import async_pulse, async_set_bool, async_set_float, async_set_int
 
 _LOGGER = logging.getLogger(__name__)
 

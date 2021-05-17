@@ -6,14 +6,9 @@ from defusedxml import ElementTree
 import voluptuous as vol
 
 from homeassistant.config import load_yaml_config_file
-import homeassistant.helpers.config_validation as cv
-
-from homeassistant.const import (
-    CONF_TYPE,
-    CONF_UNIT_OF_MEASUREMENT,
-    TEMP_CELSIUS,
-)
+from homeassistant.const import CONF_TYPE, CONF_UNIT_OF_MEASUREMENT, TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
+import homeassistant.helpers.config_validation as cv
 
 from .const import (
     AUTO_SETUP_YAML,

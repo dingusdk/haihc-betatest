@@ -1,18 +1,13 @@
 """Config flow for IHC integration."""
 import logging
-import voluptuous as vol
-
-from homeassistant.data_entry_flow import AbortFlow
-from homeassistant import config_entries, exceptions
-from homeassistant.const import (
-    CONF_PASSWORD,
-    CONF_USERNAME,
-    CONF_URL,
-)
-from homeassistant.core import callback
-from homeassistant.helpers.typing import HomeAssistantType
 
 from ihcsdk.ihccontroller import IHCController
+import voluptuous as vol
+
+from homeassistant import config_entries, exceptions
+from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.data_entry_flow import AbortFlow
 
 from . import get_options_value
 from .const import CONF_AUTOSETUP, CONF_INFO, CONF_USE_GROUPS, DOMAIN
@@ -31,7 +26,7 @@ DATA_SCHEMA = vol.Schema(
 )
 
 
-def dovalidate(hass: HomeAssistantType, user_input) -> str:
+def dovalidate(hass: HomeAssistant, user_input) -> str:
     """Validate the user input.
 
     Return the IHC controller serial number

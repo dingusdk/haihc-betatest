@@ -6,11 +6,7 @@ from ihcsdk.ihccontroller import IHCController
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    CONF_PASSWORD,
-    CONF_URL,
-    CONF_USERNAME,
-)
+from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 import homeassistant.helpers.config_validation as cv
@@ -31,9 +27,9 @@ from .const import (
 from .manual_setup import (
     BINARY_SENSOR_SCHEMA,
     LIGHT_SCHEMA,
-    manual_setup,
     SENSOR_SCHEMA,
     SWITCH_SCHEMA,
+    manual_setup,
     validate_name,
 )
 from .migrate import migrate_configuration
@@ -155,7 +151,9 @@ async def setup_controller_device(
     hass: HomeAssistant, ihc_controller, entry: ConfigEntry
 ):
     """Register the IHC controller as a Home Assistant device."""
-    controller_id = entry.unique_id
+    # We must have a controller id, and cast the unique_id to a string.
+    # we know it is not None because it will always be set to the controller serial during setup
+    controller_id: str = str(entry.unique_id)
     system_info = await hass.async_add_executor_job(
         ihc_controller.client.get_system_info
     )

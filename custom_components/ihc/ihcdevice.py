@@ -1,5 +1,6 @@
 """Implementation of a base class for all IHC devices."""
 import logging
+
 from homeassistant.helpers.entity import Entity
 
 from .const import CONF_INFO, DOMAIN
@@ -65,7 +66,7 @@ class IHCDevice(Entity):
         return f"ihc{self.controller_id}{self.ihc_id}"
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Return the state attributes."""
         info = self.hass.data[DOMAIN][self.controller_id][CONF_INFO]
         if not info:

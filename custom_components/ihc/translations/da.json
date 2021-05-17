@@ -4,7 +4,7 @@
             "cannot_connect": "Kan ikke forbinde til IHC controlleren",
             "invalid_auth": "Godkendelse fejlede. Brugernavn/adgangskode er forkert",
             "unknown": "Ukendt fejl",
-            "already_setup": "Denne controller er allerede opsat"
+            "already_setup": "Denne controller er allerede tilføjet til Home Assistant"
         },
         "step": {
             "user": {
@@ -14,7 +14,7 @@
                     "username": "Brugernavn",
                     "password": "Adgangskode",
                     "auto_setup": "Autosetup",
-                    "use_groups": "Anvend IHC grupper som groups som områdeforslag"
+                    "use_groups": "Anvend IHC grupper som områdeforslag"
                 }
             }
         }
