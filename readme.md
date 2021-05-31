@@ -28,7 +28,7 @@ Currently the beta testing has these changes:
 * Extra attribute to identify the IHC controller on an entity. (When you have multiple IHC controllers)
 * Migrating old manual config to new ihc_manual_setup.yaml file
 
-Also see [Home Assistant IHC itegration](https://github.com/dingusdk/home-assistant.io/blob/current/source/_integrations/ihc.markdown)
+Also see [Home Assistant IHC itegration](https://github.com/dingusdk/home-assistant.io/blob/ihcconfigflow/source/_integrations/ihc.markdown)
 This my fork of the Home assistant documentation web page - and I will try to keep it updated with this beta.
 
 
