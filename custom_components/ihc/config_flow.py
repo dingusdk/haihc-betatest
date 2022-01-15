@@ -11,6 +11,7 @@ from homeassistant.data_entry_flow import AbortFlow
 
 from . import get_options_value
 from .const import CONF_AUTOSETUP, CONF_INFO, CONF_USE_GROUPS, DOMAIN
+from .util import get_controller_serial
 
 CONFIG_FLOW_VERSION = 1
 _LOGGER = logging.getLogger(__name__)
@@ -45,15 +46,6 @@ def dovalidate(hass: HomeAssistant, user_input) -> str:
     finally:
         ihc_controller.disconnect()
     return serial
-
-
-def get_controller_serial(ihc_controller: IHCController) -> str:
-    """Get the controller serial number.
-
-    Having the function makes it easier to patch for testing
-    """
-    info = ihc_controller.client.get_system_info()
-    return info["serial_number"]
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):

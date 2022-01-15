@@ -52,7 +52,7 @@ def migrate_configuration(hass: HomeAssistant):
     if not has_manual_config:
         _LOGGER.debug("No manual configuration in old IHC configuration")
         return
-    with open(yaml_manual_setup_path, "w") as file:
+    with open(yaml_manual_setup_path, "w", encoding="utf8") as file:
         yaml.dump(newconf, file, default_flow_style=False, sort_keys=False)
     _LOGGER.warning(
         "Your old ihc configuration in configuration.yaml "

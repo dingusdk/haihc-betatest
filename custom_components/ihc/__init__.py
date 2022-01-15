@@ -10,6 +10,7 @@ from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.typing import ConfigType
 
 from .auto_setup import autosetup_ihc_products
 from .const import (
@@ -64,7 +65,7 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 
-def setup(hass: HomeAssistant, config):
+def setup(hass: HomeAssistant, config: ConfigType):
     """Set up the IHC integration."""
     conf = config.get(DOMAIN)
     if conf is not None:
@@ -141,7 +142,7 @@ async def async_update_options(hass: HomeAssistant, config_entry: ConfigEntry):
 
 
 def get_options_value(config_entry, key, default):
-    """Get an options value and fall back to a default."""
+    """Get an options value or fall back to a default."""
     if config_entry.options:
         return config_entry.options.get(key, default)
     return default

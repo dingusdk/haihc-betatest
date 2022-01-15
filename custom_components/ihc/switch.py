@@ -2,38 +2,22 @@
 import logging
 
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONF_INFO, CONF_OFF_ID, CONF_ON_ID, DOMAIN, IHC_CONTROLLER
+from .const import CONF_OFF_ID, CONF_ON_ID, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
 from .util import async_pulse, async_set_bool
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the IHC switch platform."""
-    if discovery_info is None:
-        return
-    devices = []
-    for name, device in discovery_info.items():
-        ihc_id = device["ihc_id"]
-        product_cfg = device["product_cfg"]
-        product = device["product"]
-        # Find controller that corresponds with device id
-        ctrl_id = device["ctrl_id"]
-        ihc_key = f"ihc{ctrl_id}"
-        info = hass.data[ihc_key][CONF_INFO]
-        ihc_controller = hass.data[ihc_key][IHC_CONTROLLER]
-        ihc_off_id = product_cfg.get(CONF_OFF_ID)
-        ihc_on_id = product_cfg.get(CONF_ON_ID)
-        switch = IHCSwitch(
-            ihc_controller, name, ihc_id, ihc_off_id, ihc_on_id, info, product
-        )
-        devices.append(switch)
-    add_entities(devices)
-
-
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+):
     """Load IHC switches based on a config entry."""
     controller_id = config_entry.unique_id
     data = hass.data[DOMAIN][controller_id]

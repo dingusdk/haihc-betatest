@@ -71,13 +71,14 @@ class IHCDevice(Entity):
         info = self.hass.data[DOMAIN][self.controller_id][CONF_INFO]
         if not info:
             return {}
-        multicontroller: bool = len(self.hass.data[DOMAIN]) > 1
         attributes = {
             "ihc_id": self.ihc_id,
             "ihc_name": self.ihc_name,
             "ihc_note": self.ihc_note,
             "ihc_position": self.ihc_position,
         }
+        multicontroller: bool = len(self.hass.data[DOMAIN]) > 1
+        # We only want to show the controller id if we have more than one
         if multicontroller:
             attributes["ihc_controller"] = self.controller_id
         return attributes

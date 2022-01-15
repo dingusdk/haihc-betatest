@@ -1,14 +1,19 @@
 """Support for IHC binary sensors."""
 from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_TYPE
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CONF_INVERTING, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+):
     """Load IHC switches based on a config entry."""
-    controller_id = config_entry.unique_id
+    controller_id = entry.unique_id
     data = hass.data[DOMAIN][controller_id]
     ihc_controller = data[IHC_CONTROLLER]
     sensors = []
