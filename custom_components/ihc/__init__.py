@@ -10,6 +10,7 @@ from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.entity_registry import RegistryEntry, async_migrate_entries
 from homeassistant.helpers.typing import ConfigType
 
 from .auto_setup import autosetup_ihc_products
@@ -84,7 +85,18 @@ def setup(hass: HomeAssistant, config: ConfigType):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up the IHC Controller from a config entry."""
+
     controller_id = entry.unique_id
+    strip: int = 3 + len(controller_id)
+
+    def update_unique_id(entity_entry: RegistryEntry):
+        if entity_entry.unique_id[0:3] == "ihc":
+            newid = controller_id + "-" + entity_entry.unique_id[strip:]
+            _LOGGER.info(f"Unique id change from {entity_entry.unique_id} to {newid}")
+            return {"new_unique_id": newid}
+
+    await async_migrate_entries(hass, entry.entry_id, update_unique_id)
+
     url = entry.data[CONF_URL]
     username = entry.data[CONF_USERNAME]
     password = entry.data[CONF_PASSWORD]
