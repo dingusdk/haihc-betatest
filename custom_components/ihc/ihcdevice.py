@@ -1,9 +1,11 @@
 """Implementation of a base class for all IHC devices."""
 import logging
 
+from ihcsdk.ihccontroller import IHCController
+
 from homeassistant.helpers.entity import Entity
 
-from .const import CONF_INFO, DOMAIN
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -16,8 +18,15 @@ class IHCDevice(Entity):
     Derived classes must implement the on_ihc_change method
     """
 
+    _attr_should_poll = False
+
     def __init__(
-        self, ihc_controller, controller_id: str, name: str, ihc_id: int, product=None
+        self,
+        ihc_controller: IHCController,
+        controller_id: str,
+        name: str,
+        ihc_id: int,
+        product=None,
     ) -> None:
         """Initialize IHC attributes."""
         self.ihc_controller = ihc_controller
@@ -34,8 +43,7 @@ class IHCDevice(Entity):
             if "id" in product:
                 product_id = product["id"]
                 self.device_id = f"{controller_id}_{product_id }"
-                """this will name the device the same way as the IHC visual
-                 application: Product name + position"""
+                # this will name the device the same way as the IHC visual application: Product name + position
                 self.device_name = product["name"]
                 if self.ihc_position:
                     self.device_name += f" ({self.ihc_position})"
@@ -51,11 +59,6 @@ class IHCDevice(Entity):
         self.ihc_controller.add_notify_event(self.ihc_id, self.on_ihc_change, True)
 
     @property
-    def should_poll(self) -> bool:
-        """No polling needed for IHC devices."""
-        return False
-
-    @property
     def name(self):
         """Return the device name."""
         return self._name
@@ -68,18 +71,14 @@ class IHCDevice(Entity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        info = self.hass.data[DOMAIN][self.controller_id][CONF_INFO]
-        if not info:
-            return {}
         attributes = {
             "ihc_id": self.ihc_id,
             "ihc_name": self.ihc_name,
             "ihc_note": self.ihc_note,
             "ihc_position": self.ihc_position,
         }
-        multicontroller: bool = len(self.hass.data[DOMAIN]) > 1
-        # We only want to show the controller id if we have more than one
-        if multicontroller:
+        if len(self.hass.data[DOMAIN]) > 1:
+            # We only want to show the controller id if we have more than one
             attributes["ihc_controller"] = self.controller_id
         return attributes
 

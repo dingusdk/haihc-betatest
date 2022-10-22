@@ -19,7 +19,6 @@ import homeassistant.helpers.config_validation as cv
 from .const import (
     CONF_BINARY_SENSOR,
     CONF_DIMMABLE,
-    CONF_INFO,
     CONF_INVERTING,
     CONF_LIGHT,
     CONF_NOTE,
@@ -95,7 +94,6 @@ MANUAL_SETUP_SCHEMA = vol.Schema(
                                 cv.ensure_list,
                                 [vol.All(BINARY_SENSOR_SCHEMA, validate_name)],
                             ),
-                            vol.Optional(CONF_INFO, default=True): cv.boolean,
                             vol.Optional(CONF_LIGHT, default=[]): vol.All(
                                 cv.ensure_list, [vol.All(LIGHT_SCHEMA, validate_name)]
                             ),
@@ -114,7 +112,7 @@ MANUAL_SETUP_SCHEMA = vol.Schema(
 )
 
 
-def manual_setup(hass: HomeAssistant, controller_id):
+def manual_setup(hass: HomeAssistant, controller_id: str) -> None:
     """Manual setup of IHC devices."""
     yaml_path = hass.config.path(MANUAL_SETUP_YAML)
     if not os.path.isfile(yaml_path):
@@ -135,11 +133,11 @@ def manual_setup(hass: HomeAssistant, controller_id):
     if controller_conf is None:
         return
     # Get manual configuration for IHC devices
-    for component in IHC_PLATFORMS:
+    for platform in IHC_PLATFORMS:
         discovery_info = {}
-        if component in controller_conf:
-            component_setup = controller_conf.get(component)
-            for sensor_cfg in component_setup:
+        if platform in controller_conf:
+            platform_setup = controller_conf.get(platform, {})
+            for sensor_cfg in platform_setup:
                 name = sensor_cfg[CONF_NAME]
                 device = {
                     "ihc_id": sensor_cfg[CONF_ID],
@@ -160,7 +158,7 @@ def manual_setup(hass: HomeAssistant, controller_id):
                 }
                 discovery_info[name] = device
         if discovery_info:
-            if component in hass.data[DOMAIN][controller_id]:
-                hass.data[DOMAIN][controller_id][component].update(discovery_info)
+            if platform in hass.data[DOMAIN][controller_id]:
+                hass.data[DOMAIN][controller_id][platform].update(discovery_info)
             else:
-                hass.data[DOMAIN][controller_id][component] = discovery_info
+                hass.data[DOMAIN][controller_id][platform] = discovery_info

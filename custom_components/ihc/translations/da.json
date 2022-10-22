@@ -13,8 +13,7 @@
                     "url": "Url",
                     "username": "Brugernavn",
                     "password": "Adgangskode",
-                    "auto_setup": "Autosetup",
-                    "use_groups": "Anvend IHC grupper som områdeforslag"
+                    "auto_setup": "Autosetup"
                 }
             }
         }
@@ -24,7 +23,7 @@
             "init": {
                 "description": "IHC controller indstillinger",
                 "data": {
-                    "info": "Info (Tilføj IHC navn,note og position som attributter)"
+                    "info": "Info (Tilføj IHC navn, note og position som attributter)"
                 }
             }
         }

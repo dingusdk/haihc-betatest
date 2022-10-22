@@ -1,75 +1,26 @@
 """Support for IHC devices."""
-import asyncio
 import logging
 
 from ihcsdk.ihccontroller import IHCController
-import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
-import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity_registry import RegistryEntry, async_migrate_entries
 from homeassistant.helpers.typing import ConfigType
 
 from .auto_setup import autosetup_ihc_products
-from .const import (
-    CONF_AUTOSETUP,
-    CONF_BINARY_SENSOR,
-    CONF_INFO,
-    CONF_LIGHT,
-    CONF_SENSOR,
-    CONF_SWITCH,
-    CONF_USE_GROUPS,
-    DOMAIN,
-    IHC_CONTROLLER,
-    IHC_PLATFORMS,
-)
-from .manual_setup import (
-    BINARY_SENSOR_SCHEMA,
-    LIGHT_SCHEMA,
-    SENSOR_SCHEMA,
-    SWITCH_SCHEMA,
-    manual_setup,
-    validate_name,
-)
+from .const import CONF_AUTOSETUP, DOMAIN, IHC_CONTROLLER, IHC_PLATFORMS
+from .manual_setup import manual_setup
 from .migrate import migrate_configuration
 from .service_functions import setup_service_functions
 
 _LOGGER = logging.getLogger(__name__)
 
-IHC_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_PASSWORD): cv.string,
-        vol.Required(CONF_URL): cv.string,
-        vol.Required(CONF_USERNAME): cv.string,
-        vol.Optional(CONF_AUTOSETUP, default=True): cv.boolean,
-        vol.Optional(CONF_BINARY_SENSOR, default=[]): vol.All(
-            cv.ensure_list, [vol.All(BINARY_SENSOR_SCHEMA, validate_name)]
-        ),
-        vol.Optional(CONF_INFO, default=True): cv.boolean,
-        vol.Optional(CONF_LIGHT, default=[]): vol.All(
-            cv.ensure_list, [vol.All(LIGHT_SCHEMA, validate_name)]
-        ),
-        vol.Optional(CONF_SENSOR, default=[]): vol.All(
-            cv.ensure_list, [vol.All(SENSOR_SCHEMA, validate_name)]
-        ),
-        vol.Optional(CONF_SWITCH, default=[]): vol.All(
-            cv.ensure_list, [vol.All(SWITCH_SCHEMA, validate_name)]
-        ),
-    }
-)
 
-CONFIG_SCHEMA = vol.Schema(
-    {DOMAIN: vol.Schema(vol.All(cv.ensure_list, [IHC_SCHEMA]))}, extra=vol.ALLOW_EXTRA
-)
-
-
-def setup(hass: HomeAssistant, config: ConfigType):
+def setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the IHC integration."""
-    conf = config.get(DOMAIN)
-    if conf is not None:
+    if config.get(DOMAIN) is not None:
         _LOGGER.error(
             """
             Setup of the IHC controller in configuration.yaml is no longer
@@ -78,45 +29,29 @@ def setup(hass: HomeAssistant, config: ConfigType):
         )
         migrate_configuration(hass)
         return False
-
-    setup_service_functions(hass)
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up the IHC Controller from a config entry."""
-
-    controller_id = entry.unique_id
-    strip: int = 3 + len(controller_id)
-
-    def update_unique_id(entity_entry: RegistryEntry):
-        if entity_entry.unique_id[0:3] == "ihc":
-            newid = controller_id + "-" + entity_entry.unique_id[strip:]
-            _LOGGER.info(f"Unique id change from {entity_entry.unique_id} to {newid}")
-            return {"new_unique_id": newid}
-
-    await async_migrate_entries(hass, entry.entry_id, update_unique_id)
-
-    url = entry.data[CONF_URL]
-    username = entry.data[CONF_USERNAME]
-    password = entry.data[CONF_PASSWORD]
-    autosetup = entry.data[CONF_AUTOSETUP]
-    use_groups = entry.data[CONF_USE_GROUPS] if CONF_USE_GROUPS in entry.data else False
-    info = get_options_value(entry, CONF_INFO, True)
-    ihc_controller = IHCController(url, username, password)
+    controller_id: str = str(entry.unique_id)
+    url: str = entry.data[CONF_URL]
+    username: str = entry.data[CONF_USERNAME]
+    password: str = entry.data[CONF_PASSWORD]
+    autosetup: bool = entry.data[CONF_AUTOSETUP]
+    ihc_controller: IHCController = IHCController(url, username, password)
     if not await hass.async_add_executor_job(ihc_controller.authenticate):
         _LOGGER.error("Unable to authenticate on IHC controller")
         return False
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][controller_id] = {
         IHC_CONTROLLER: ihc_controller,
-        CONF_INFO: info,
     }
     if not await setup_controller_device(hass, ihc_controller, entry):
         return False
     if autosetup:
         await hass.async_add_executor_job(
-            autosetup_ihc_products, hass, ihc_controller, controller_id, use_groups
+            autosetup_ihc_products, hass, ihc_controller, controller_id
         )
     await hass.async_add_executor_job(manual_setup, hass, controller_id)
     for component in IHC_PLATFORMS:
@@ -124,18 +59,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
     entry.add_update_listener(async_update_options)
+    # We only wan to register service functions once, in case you have multiple controllers
+    if len(hass.data[DOMAIN]) == 1:
+        setup_service_functions(hass)
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
+async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = all(
-        await asyncio.gather(
-            *[
-                hass.config_entries.async_forward_entry_unload(config_entry, component)
-                for component in IHC_PLATFORMS
-            ]
-        )
+    unload_ok = await hass.config_entries.async_unload_platforms(
+        config_entry, IHC_PLATFORMS
     )
     if not unload_ok:
         return False
@@ -148,21 +81,14 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     return True
 
 
-async def async_update_options(hass: HomeAssistant, config_entry: ConfigEntry):
+async def async_update_options(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
     """Update options."""
     await hass.config_entries.async_reload(config_entry.entry_id)
 
 
-def get_options_value(config_entry, key, default):
-    """Get an options value or fall back to a default."""
-    if config_entry.options:
-        return config_entry.options.get(key, default)
-    return default
-
-
 async def setup_controller_device(
-    hass: HomeAssistant, ihc_controller, entry: ConfigEntry
-):
+    hass: HomeAssistant, ihc_controller: IHCController, entry: ConfigEntry
+) -> bool:
     """Register the IHC controller as a Home Assistant device."""
     # We must have a controller id, and cast the unique_id to a string.
     # we know it is not None because it will always be set to the controller serial during setup

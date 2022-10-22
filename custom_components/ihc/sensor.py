@@ -1,11 +1,16 @@
 """Support for IHC sensors."""
 from __future__ import annotations
 
+from datetime import date, datetime
+from decimal import Decimal
+from ihcsdk.ihccontroller import IHCController
+
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_UNIT_OF_MEASUREMENT
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import StateType
 from homeassistant.util.unit_system import TEMPERATURE_UNITS
 
 from .const import DOMAIN, IHC_CONTROLLER
@@ -14,14 +19,14 @@ from .ihcdevice import IHCDevice
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
-):
-    """Load IHC switches based on a config entry."""
-    controller_id = entry.unique_id
-    data = hass.data[DOMAIN][controller_id]
-    ihc_controller = data[IHC_CONTROLLER]
+) -> None:
+    """Load IHC sensors based on a config entry."""
+    controller_id: str = str(entry.unique_id)
+    controller_data = hass.data[DOMAIN][controller_id]
+    ihc_controller: IHCController = controller_data[IHC_CONTROLLER]
     sensors = []
-    if "sensor" in data and data["sensor"]:
-        for name, device in data["sensor"].items():
+    if "sensor" in controller_data and controller_data["sensor"]:
+        for name, device in controller_data["sensor"].items():
             ihc_id = device["ihc_id"]
             product_cfg = device["product_cfg"]
             product = device["product"]
@@ -43,11 +48,11 @@ class IHCSensor(IHCDevice, SensorEntity):
 
     def __init__(
         self,
-        ihc_controller,
-        controller_id,
-        name,
+        ihc_controller: IHCController,
+        controller_id: str,
+        name: str,
         ihc_id: int,
-        unit,
+        unit: str,
         product=None,
     ) -> None:
         """Initialize the IHC sensor."""
@@ -56,7 +61,7 @@ class IHCSensor(IHCDevice, SensorEntity):
         self._unit_of_measurement = unit
 
     @property
-    def device_class(self):
+    def device_class(self) -> SensorDeviceClass | str | None:
         """Return the class of this device, from component DEVICE_CLASSES."""
         return (
             SensorDeviceClass.TEMPERATURE
@@ -65,12 +70,12 @@ class IHCSensor(IHCDevice, SensorEntity):
         )
 
     @property
-    def native_value(self):
+    def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the state of the sensor."""
         return self._state
 
     @property
-    def native_unit_of_measurement(self):
+    def native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement of this entity, if any."""
         return self._unit_of_measurement
 

@@ -1,10 +1,12 @@
 """Support for IHC lights."""
-from homeassistant.components.light import (
-    ATTR_BRIGHTNESS,
-    SUPPORT_BRIGHTNESS,
-    LightEntity,
-)
+from __future__ import annotations
+
+from typing import Any
+
+from ihcsdk.ihccontroller import IHCController
+
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -17,12 +19,12 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Load IHC lights based on a config entry."""
-    controller_id = entry.unique_id
-    data = hass.data[DOMAIN][controller_id]
-    ihc_controller = data[IHC_CONTROLLER]
+    controller_id: str = str(entry.unique_id)
+    controller_data = hass.data[DOMAIN][controller_id]
+    ihc_controller: IHCController = controller_data[IHC_CONTROLLER]
     lights = []
-    if "light" in data and data["light"]:
-        for name, device in data["light"].items():
+    if "light" in controller_data and controller_data["light"]:
+        for name, device in controller_data["light"].items():
             ihc_id = device["ihc_id"]
             product_cfg = device["product_cfg"]
             product = device["product"]
@@ -53,9 +55,9 @@ class IhcLight(IHCDevice, LightEntity):
 
     def __init__(
         self,
-        ihc_controller,
-        controller_id,
-        name,
+        ihc_controller: IHCController,
+        controller_id: str,
+        name: str,
         ihc_id: int,
         ihc_off_id: int,
         ihc_on_id: int,
@@ -69,6 +71,11 @@ class IhcLight(IHCDevice, LightEntity):
         self._brightness = 0
         self._dimmable = dimmable
         self._state = False
+        if self._dimmable:
+            self._attr_color_mode = ColorMode.BRIGHTNESS
+        else:
+            self._attr_color_mode = ColorMode.ONOFF
+        self._attr_supported_color_modes = {self._attr_color_mode}
 
     @property
     def brightness(self) -> int:
@@ -80,14 +87,7 @@ class IhcLight(IHCDevice, LightEntity):
         """Return true if light is on."""
         return self._state
 
-    @property
-    def supported_features(self):
-        """Flag supported features."""
-        if self._dimmable:
-            return SUPPORT_BRIGHTNESS
-        return 0
-
-    async def async_turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the light on."""
         if ATTR_BRIGHTNESS in kwargs:
             brightness = kwargs[ATTR_BRIGHTNESS]
@@ -105,7 +105,7 @@ class IhcLight(IHCDevice, LightEntity):
             else:
                 await async_set_bool(self.hass, self.ihc_controller, self.ihc_id, True)
 
-    async def async_turn_off(self, **kwargs):
+    async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the light off."""
         if self._dimmable:
             await async_set_int(self.hass, self.ihc_controller, self.ihc_id, 0)

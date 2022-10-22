@@ -1,6 +1,4 @@
 """Support for IHC devices."""
-import logging
-
 import voluptuous as vol
 
 from homeassistant.core import HomeAssistant
@@ -18,9 +16,6 @@ from .const import (
     SERVICE_SET_RUNTIME_VALUE_INT,
 )
 from .util import async_pulse, async_set_bool, async_set_float, async_set_int
-
-_LOGGER = logging.getLogger(__name__)
-
 
 SET_RUNTIME_VALUE_BOOL_SCHEMA = vol.Schema(
     {
@@ -54,7 +49,7 @@ PULSE_SCHEMA = vol.Schema(
 )
 
 
-def setup_service_functions(hass: HomeAssistant):
+def setup_service_functions(hass: HomeAssistant) -> None:
     """Set up the IHC service functions."""
 
     def _get_controller(call):
