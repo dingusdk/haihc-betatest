@@ -20,6 +20,7 @@ CONF_ON_ID = "on_id"
 CONF_POSITION = "position"
 CONF_SENSOR = "sensor"
 CONF_SWITCH = "switch"
+CONF_BUTTON = "button"
 CONF_XPATH = "xpath"
 
 DOMAIN = "ihc"
@@ -31,6 +32,7 @@ IHC_PLATFORMS = (
     Platform.LIGHT,
     Platform.SENSOR,
     Platform.SWITCH,
+    Platform.BUTTON
 )
 
 MANUAL_SETUP_YAML = "ihc_manual_setup.yaml"

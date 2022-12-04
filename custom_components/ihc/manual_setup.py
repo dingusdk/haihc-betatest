@@ -27,6 +27,7 @@ from .const import (
     CONF_POSITION,
     CONF_SENSOR,
     CONF_SWITCH,
+    CONF_BUTTON,
     DOMAIN,
     IHC_PLATFORMS,
     MANUAL_SETUP_YAML,
@@ -101,6 +102,9 @@ MANUAL_SETUP_SCHEMA = vol.Schema(
                                 cv.ensure_list, [vol.All(SENSOR_SCHEMA, validate_name)]
                             ),
                             vol.Optional(CONF_SWITCH, default=[]): vol.All(
+                                cv.ensure_list, [vol.All(SWITCH_SCHEMA, validate_name)]
+                            ),
+                            vol.Optional(CONF_BUTTON, default=[]): vol.All(
                                 cv.ensure_list, [vol.All(SWITCH_SCHEMA, validate_name)]
                             ),
                         }

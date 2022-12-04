@@ -130,3 +130,14 @@ switch:
   # Wireless mobile relay
   - xpath: './/product_airlink[@product_identifier="_0x4204"]'
     node: "airlink_relay"
+
+button:
+  # Wireless Combi relay 2 buttons
+  - xpath: './/product_airlink[@product_identifier="_0x4101"]'
+    node: "airlink_input"    
+  # Wireless Combi relay 4 buttons
+  - xpath: './/product_airlink[@product_identifier="_0x4102"]'
+    node: "airlink_input"
+  # Wireless Combi relay 6 buttons
+  - xpath: './/product_airlink[@product_identifier="_0x4103"]'
+    node: "airlink_input"    
