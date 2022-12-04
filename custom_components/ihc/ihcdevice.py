@@ -48,6 +48,8 @@ class IHCDevice(Entity):
                 if self.ihc_position:
                     self.device_name += f" ({self.ihc_position})"
                 self.device_model = product["model"]
+                # Update entity name to the more user friendly "name + position" device name instead of the group_id composite.
+                self._name = product["entity_name"] or self.device_name
         else:
             self.ihc_name = ""
             self.ihc_note = ""

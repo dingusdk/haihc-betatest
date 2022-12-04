@@ -20,6 +20,7 @@ from .const import (
     CONF_NODE,
     CONF_SENSOR,
     CONF_SWITCH,
+    CONF_BUTTON,
     CONF_XPATH,
     DOMAIN,
     IHC_PLATFORMS,
@@ -80,6 +81,17 @@ AUTO_SETUP_SCHEMA = vol.Schema(
                 )
             ],
         ),
+        vol.Optional(CONF_BUTTON, default=[]): vol.All(
+            cv.ensure_list,
+            [
+                vol.All(
+                    {
+                        vol.Required(CONF_NODE): cv.string,
+                        vol.Required(CONF_XPATH): cv.string,
+                    }
+                )
+            ],
+        ),
     }
 )
 
@@ -126,10 +138,17 @@ def get_discovery_info(platform_setup, groups, controller_id):
                     if "setting" in node.attrib and node.attrib["setting"] == "yes":
                         continue
                     ihc_id = int(node.attrib["id"].strip("_"), 0)
-                    name = f"{groupname}_{ihc_id}"
+                    entity_id = f"{groupname}_{ihc_id}"
                     # make the model number look a bit nicer - strip leading _
                     model = product.get("product_identifier", "").lstrip("_")
-                    device = {
+                    
+                    entity_name = product.get("name")
+                    if len(nodes) > 1 and node.get("name"):
+                        entity_name = node.get("name")
+                    position = product.get("position")
+                    if position:
+                        entity_name += f" ({position})"
+                    entity = {
                         "ihc_id": ihc_id,
                         "ctrl_id": controller_id,
                         "product": {
@@ -139,8 +158,9 @@ def get_discovery_info(platform_setup, groups, controller_id):
                             "position": product.get("position") or "",
                             "model": model,
                             "group": groupname,
+                            "entity_name": entity_name,
                         },
                         "product_cfg": product_cfg,
                     }
-                    discovery_data[name] = device
+                    discovery_data[entity_id] = entity
     return discovery_data

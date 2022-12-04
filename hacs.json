@@ -5,7 +5,8 @@
         "binary_sensor",
         "light",
         "sensor",
-        "switch"
+        "switch",
+        "button"
     ],
     "iot_class": "Local Push",
     "homeassistant": "0.118.0"
