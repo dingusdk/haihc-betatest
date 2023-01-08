@@ -90,6 +90,9 @@ light:
   # Dataline Lamp outlet
   - xpath: './/product_dataline[@product_identifier="_0x2202"]'
     node: "dataline_output"
+  # Dataline Lamp outlet
+  - xpath: './/product_dataline[@product_identifier="_0x2702"]'
+    node: "dataline_output"    
   # Mobile Wireless dimmer
   - xpath: './/product_airlink[@product_identifier="_0x4303"]'
     node: "airlink_dimming"
