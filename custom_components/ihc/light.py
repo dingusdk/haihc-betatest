@@ -5,8 +5,8 @@ from typing import Any
 
 from ihcsdk.ihccontroller import IHCController
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 

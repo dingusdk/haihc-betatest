@@ -1,5 +1,6 @@
 """Support for IHC switches."""
 import logging
+from typing import Any
 
 from ihcsdk.ihccontroller import IHCController
 
@@ -7,7 +8,6 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from typing import Any
 
 from .const import CONF_OFF_ID, CONF_ON_ID, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice

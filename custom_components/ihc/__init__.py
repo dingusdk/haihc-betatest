@@ -54,10 +54,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             autosetup_ihc_products, hass, ihc_controller, controller_id
         )
     await hass.async_add_executor_job(manual_setup, hass, controller_id)
-    for component in IHC_PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(entry, component)
-        )
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setups(entry, IHC_PLATFORMS)
+    )
     entry.add_update_listener(async_update_options)
     # We only wan to register service functions once, in case you have multiple controllers
     if len(hass.data[DOMAIN]) == 1:
@@ -90,7 +89,7 @@ async def setup_controller_device(
     hass: HomeAssistant, ihc_controller: IHCController, entry: ConfigEntry
 ) -> bool:
     """Register the IHC controller as a Home Assistant device."""
-    # We must have a controller id, and cast the unique_id to a string.
+    # We must have a controller id, and cast the unique_id from string | None to a string.
     # we know it is not None because it will always be set to the controller serial during setup
     controller_id: str = str(entry.unique_id)
     system_info = await hass.async_add_executor_job(

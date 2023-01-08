@@ -11,7 +11,7 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_TYPE,
     CONF_UNIT_OF_MEASUREMENT,
-    TEMP_CELSIUS,
+    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
@@ -77,7 +77,11 @@ LIGHT_SCHEMA = DEVICE_SCHEMA.extend(
 )
 
 SENSOR_SCHEMA = DEVICE_SCHEMA.extend(
-    {vol.Optional(CONF_UNIT_OF_MEASUREMENT, default=TEMP_CELSIUS): cv.string}
+    {
+        vol.Optional(
+            CONF_UNIT_OF_MEASUREMENT, default=UnitOfTemperature.CELSIUS
+        ): cv.string
+    }
 )
 
 
