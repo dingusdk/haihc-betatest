@@ -73,7 +73,7 @@ class IHCSensor(IHCDevice, SensorEntity):
     @property
     def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the state of the sensor."""
-        return self._state
+        return round(self._state, 2)
 
     @property
     def native_unit_of_measurement(self) -> str | None:
