@@ -58,7 +58,7 @@ class IHCSensor(IHCDevice, SensorEntity):
     ) -> None:
         """Initialize the IHC sensor."""
         super().__init__(ihc_controller, controller_id, name, ihc_id, product)
-        self._state = None
+        self._state = 0  # sæt startværdi for _state
         self._unit_of_measurement = unit
 
     @property
@@ -71,8 +71,13 @@ class IHCSensor(IHCDevice, SensorEntity):
         )
 
     @property
-    def native_value(self) -> StateType | date | datetime | Decimal:
+    def native_value(self) -> StateType | date | datetime | Decimal | None:
         """Return the state of the sensor."""
+        return round(self._state, 2)
+
+        """Return the state of the sensor."""
+        if self._state is None:
+            return None
         return round(self._state, 2)
 
     @property
