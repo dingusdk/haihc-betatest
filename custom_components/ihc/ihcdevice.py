@@ -1,14 +1,21 @@
+"""Implementation of a base class for all IHC devices."""
 import logging
 
 from ihcsdk.ihccontroller import IHCController
+
 from homeassistant.helpers.entity import Entity
+
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class IHCDevice(Entity):
-    """Base class for all IHC devices."""
+    """Base class for all IHC devices.
+    All IHC devices have an associated IHC resource. IHCDevice handled the
+    registration of the IHC controller callback when the IHC resource changes.
+    Derived classes must implement the on_ihc_change method
+    """
 
     _attr_should_poll = False
 
@@ -27,19 +34,23 @@ class IHCDevice(Entity):
         self.controller_id = controller_id
         self.device_id = None
         self.suggested_area = None
-
         if product:
-            self.ihc_name, self.ihc_note, self.ihc_position = (
-                product["name"],
-                product["note"],
-                product["position"],
-            )
-            self.suggested_area = product.get("group")
-            self.device_id = f"{controller_id}_{product.get('id')}"
-            self.device_name = f"{product['name']} ({product.get('position', '')})"
-            self.device_model = product["model"]
+            self.ihc_name = product["name"]
+            self.ihc_note = product["note"]
+            self.ihc_position = product["position"]
+            self.suggested_area = product["group"] if "group" in product else None
+            if "id" in product:
+                product_id = product["id"]
+                self.device_id = f"{controller_id}_{product_id }"
+                # this will name the device the same way as the IHC visual application: Product name + position
+                self.device_name = product["name"]
+                if self.ihc_position:
+                    self.device_name += f" ({self.ihc_position})"
+                self.device_model = product["model"]
         else:
-            self.ihc_name = self.ihc_note = self.ihc_position = ""
+            self.ihc_name = ""
+            self.ihc_note = ""
+            self.ihc_position = ""
 
     async def async_added_to_hass(self):
         """Add callback for IHC changes."""
@@ -66,11 +77,14 @@ class IHCDevice(Entity):
             "ihc_position": self.ihc_position,
         }
         if len(self.hass.data[DOMAIN]) > 1:
+            # We only want to show the controller id if we have more than one
             attributes["ihc_controller"] = self.controller_id
         return attributes
 
     def on_ihc_change(self, ihc_id, value):
-        """Handle IHC resource change."""
+        """Handle IHC resource change.
+        Derived classes must overwrite this to do device specific stuff.
+        """
         raise NotImplementedError
 
     @property
@@ -79,7 +93,10 @@ class IHCDevice(Entity):
         if not self.device_id:
             return None
         return {
-            "identifiers": {(DOMAIN, self.device_id)},
+            "identifiers": {
+                # Serial numbers are unique identifiers within a specific domain
+                (DOMAIN, self.device_id)
+            },
             "name": self.device_name,
             "manufacturer": "Schneider Electric",
             "suggested_area": self.suggested_area,
