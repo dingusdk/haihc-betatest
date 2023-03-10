@@ -1,3 +1,11 @@
+**Important**, this is a fork of dingusdk: Home Assistant IHC Beta testing, all credit to him for doing fantastic work. 
+
+This version includes some changes:
+
+**Changelog:** 
+- Round number on sensor
+- Code optimization
+
 # Home Assistant IHC Beta testing
 
 This is a Home Assistant Custom integration for beta testing the IHC integration.
