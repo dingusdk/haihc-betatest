@@ -1,53 +1,43 @@
-"""Support for IHC lights."""
 from __future__ import annotations
 
-from typing import Any
-
+from typing import Any, Optional
 from ihcsdk.ihccontroller import IHCController
-
 from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
 from .const import CONF_DIMMABLE, CONF_OFF_ID, CONF_ON_ID, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
 from .util import async_pulse, async_set_bool, async_set_int
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Load IHC lights based on a config entry."""
     controller_id: str = str(entry.unique_id)
     controller_data = hass.data[DOMAIN][controller_id]
     ihc_controller: IHCController = controller_data[IHC_CONTROLLER]
-    lights = []
-    if "light" in controller_data and controller_data["light"]:
-        for name, device in controller_data["light"].items():
-            ihc_id = device["ihc_id"]
-            product_cfg = device["product_cfg"]
-            product = device["product"]
-            ihc_off_id = product_cfg.get(CONF_OFF_ID)
-            ihc_on_id = product_cfg.get(CONF_ON_ID)
-            dimmable = product_cfg[CONF_DIMMABLE]
-            light = IhcLight(
-                ihc_controller,
-                controller_id,
-                name,
-                ihc_id,
-                ihc_off_id,
-                ihc_on_id,
-                dimmable,
-                product,
-            )
-            lights.append(light)
-        async_add_entities(lights)
+    lights = [
+        IhcLight(
+            ihc_controller,
+            controller_id,
+            name,
+            device["ihc_id"],
+            device["product_cfg"].get(CONF_OFF_ID),
+            device["product_cfg"].get(CONF_ON_ID),
+            device["product_cfg"].get(CONF_DIMMABLE, False),
+            device["product"],
+        )
+        for name, device in controller_data.get("light", {}).items()
+    ]
+    async_add_entities(lights)
 
 
 class IhcLight(IHCDevice, LightEntity):
     """Representation of a IHC light.
-
     For dimmable lights, the associated IHC resource should be a light
     level (integer). For non dimmable light the IHC resource should be
     an on/off (boolean) resource
@@ -59,10 +49,10 @@ class IhcLight(IHCDevice, LightEntity):
         controller_id: str,
         name: str,
         ihc_id: int,
-        ihc_off_id: int,
-        ihc_on_id: int,
-        dimmable=False,
-        product=None,
+        ihc_off_id: Optional[int],
+        ihc_on_id: Optional[int],
+        dimmable: bool = False,
+        product: Any = None,
     ) -> None:
         """Initialize the light."""
         super().__init__(ihc_controller, controller_id, name, ihc_id, product)
@@ -71,10 +61,9 @@ class IhcLight(IHCDevice, LightEntity):
         self._brightness = 0
         self._dimmable = dimmable
         self._state = False
-        if self._dimmable:
-            self._attr_color_mode = ColorMode.BRIGHTNESS
-        else:
-            self._attr_color_mode = ColorMode.ONOFF
+        self._attr_color_mode = (
+            ColorMode.BRIGHTNESS if self._dimmable else ColorMode.ONOFF
+        )
         self._attr_supported_color_modes = {self._attr_color_mode}
 
     @property
