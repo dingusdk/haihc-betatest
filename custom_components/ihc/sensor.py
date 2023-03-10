@@ -58,7 +58,7 @@ class IHCSensor(IHCDevice, SensorEntity):
     ) -> None:
         """Initialize the IHC sensor."""
         super().__init__(ihc_controller, controller_id, name, ihc_id, product)
-        self._state = 0  # sæt startværdi for _state
+        self._state = 0  # set start value for _state
         self._unit_of_measurement = unit
 
     @property
