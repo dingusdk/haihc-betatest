@@ -77,11 +77,7 @@ LIGHT_SCHEMA = DEVICE_SCHEMA.extend(
 )
 
 SENSOR_SCHEMA = DEVICE_SCHEMA.extend(
-    {
-        vol.Optional(
-            CONF_UNIT_OF_MEASUREMENT, default=UnitOfTemperature.CELSIUS
-        ): cv.string
-    }
+    {vol.Optional(CONF_UNIT_OF_MEASUREMENT): cv.string}
 )
 
 
