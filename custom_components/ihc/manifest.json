@@ -4,12 +4,12 @@
   "documentation": "https://www.home-assistant.io/integrations/ihc",
   "requirements": [
     "defusedxml==0.6.0",
-    "ihcsdk==2.8.5"
+    "ihcsdk==2.8.6"
   ],
   "codeowners": [
     "@dingusdk"
   ],
   "config_flow": true,
   "iot_class": "local_push",
-  "version": "2023.12.1"
+  "version": "2024.3.1"
 }

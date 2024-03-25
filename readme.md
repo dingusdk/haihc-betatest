@@ -1,8 +1,17 @@
-# Home Assistant IHC Beta testing
+# Home Assistant IHC Version 2.0
+Originally this was a Home Assistant Custom integration for beta testing the IHC integration.
+I now condier this as IHC integration version 2.0
 
-This is a Home Assistant Custom integration for beta testing the IHC integration.
-I will used this when making some bigger changes to the IHC integration in Home Assisant for beta testing before the code is commited to the main Home Assistant.
-This makes it easier for you to do testing, and it also makes it easier and faster to do changes without having to wait for a PR in home assistant.
+(Note the github repository still has the same name, I may move to new one later)
+
+## History
+
+Getting the PR into the official HA was not going well, and for now I am not continuing working on that. The process was just too long, and I had to rebase my branch many times to keep up with the changes from HA. A lost of wasted time.
+
+If anybody has the time and skill to do it - feel free to port this into HA.
+Note it must be split up info many small thunks to have a changes to be accepted.
+
+But since it has been working fine for a long time, I do not condider this a "beta" version anymore.
 
 [Read more about it here](https://www.dingus.dk/help-testing-the-new-home-assistant-ihc-integration/)
 
@@ -19,7 +28,7 @@ If you find any bugs/problems use the issues here in github to report your findi
 
 ## Current state
 
-Currently the beta testing has these changes:
+Currently these are the changes compared to the build in ihc integration:
 
 * Configflow. Allow you to setup the IHC controller using the UI.
 * The controller will be represented as a device in HA, and identified by its serial number.
