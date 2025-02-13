@@ -1,6 +1,6 @@
 # Home Assistant IHC Version 2.0
 Originally this was a Home Assistant Custom integration for beta testing the IHC integration.
-I now condier this as IHC integration version 2.0
+I now consider this as IHC integration version 2.0
 
 (Note the github repository still has the same name, I may move to new one later)
 
