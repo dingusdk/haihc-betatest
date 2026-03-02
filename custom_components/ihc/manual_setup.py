@@ -1,15 +1,15 @@
 """Handle manual setup of ihc resources as entities in Home Assistant."""
+
 import logging
-import os.path
+from pathlib import Path
 
+import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-
 from homeassistant.components.binary_sensor import DEVICE_CLASSES_SCHEMA
 from homeassistant.config import load_yaml_config_file
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ID, CONF_NAME, CONF_TYPE, CONF_UNIT_OF_MEASUREMENT
 from homeassistant.core import HomeAssistant
-import homeassistant.helpers.config_validation as cv
 
 from .const import (
     CONF_BINARY_SENSOR,
@@ -30,7 +30,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-def validate_name(config):
+def validate_name(config: dict) -> dict:
     """Validate the device name."""
     if CONF_NAME in config:
         return config
@@ -110,15 +110,17 @@ MANUAL_SETUP_SCHEMA = vol.Schema(
 def manual_setup(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Manual setup of IHC devices."""
     yaml_path = hass.config.path(MANUAL_SETUP_YAML)
-    if not os.path.isfile(yaml_path):
+    if not Path(yaml_path).is_file():
         return
     yaml = load_yaml_config_file(yaml_path)
     try:
         ihc_conf = MANUAL_SETUP_SCHEMA(yaml)[DOMAIN]
-    except vol.Invalid as exception:
-        _LOGGER.error("Invalid IHC manual setup data: %s", exception)
+    except vol.Invalid:
+        _LOGGER.exception("Invalid IHC manual setup data")
         return
-    assert entry.unique_id is not None
+    if entry.unique_id is None:
+        msg = "Entry unique_id cannot be None"
+        raise ValueError(msg)
     controller_id: str = entry.unique_id
     # Find the controller config for this controller
     controller_conf = None

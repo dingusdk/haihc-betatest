@@ -2,18 +2,17 @@
 
 import asyncio
 
-from ihcsdk.ihccontroller import IHCController
-
 from homeassistant.core import HomeAssistant, callback
+from ihcsdk.ihccontroller import IHCController
 
 
 async def async_pulse(
     hass: HomeAssistant, ihc_controller: IHCController, ihc_id: int
 ) -> None:
     """Send a short on/off pulse to an IHC controller resource."""
-    await async_set_bool(hass, ihc_controller, ihc_id, True)
+    await async_set_bool(hass, ihc_controller, ihc_id, value=True)
     await asyncio.sleep(0.1)
-    await async_set_bool(hass, ihc_controller, ihc_id, False)
+    await async_set_bool(hass, ihc_controller, ihc_id, value=False)
 
 
 @callback
@@ -47,9 +46,13 @@ def async_set_float(
 
 
 def get_controller_serial(ihc_controller: IHCController) -> str:
-    """Get the controller serial number.
+    """
+    Get the controller serial number.
 
     Having the function makes it easier to patch for testing
     """
-    info = ihc_controller.client.get_system_info()
-    return info["serial_number"]
+    system_info = ihc_controller.client.get_system_info()
+    if not system_info or not isinstance(system_info, dict):
+        msg = "Unable to get serial number from IHC controller"
+        raise ValueError(msg)
+    return system_info["serial_number"]

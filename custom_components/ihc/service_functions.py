@@ -1,8 +1,9 @@
 """Support for IHC devices."""
-import voluptuous as vol
 
-from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
+from homeassistant.core import HomeAssistant, ServiceCall
+from ihcsdk.ihccontroller import IHCController
 
 from .const import (
     ATTR_CONTROLLER_ID,
@@ -53,38 +54,38 @@ PULSE_SCHEMA = vol.Schema(
 def setup_service_functions(hass: HomeAssistant) -> None:
     """Set up the IHC service functions."""
 
-    def _get_controller(call):
+    def _get_controller(call: ServiceCall) -> IHCController:
         controller_id = call.data[ATTR_CONTROLLER_ID]
         if controller_id != "":
-            for entry_id, data in hass.data[DOMAIN].items():
+            for data in hass.data[DOMAIN].values():
                 if data[IHC_CONTROLLER_ID] == controller_id:
                     return data[IHC_CONTROLLER]
         # if the controller id was not found or specified we use the first one
         entry_id = next(iter(hass.data[DOMAIN]))
         return hass.data[DOMAIN][entry_id][IHC_CONTROLLER]
 
-    async def async_set_runtime_value_bool(call):
+    async def async_set_runtime_value_bool(call: ServiceCall) -> None:
         """Set a IHC runtime bool value service function."""
         ihc_id = call.data[ATTR_IHC_ID]
         value = call.data[ATTR_VALUE]
         ihc_controller = _get_controller(call)
         await async_set_bool(hass, ihc_controller, ihc_id, value)
 
-    async def async_set_runtime_value_int(call):
+    async def async_set_runtime_value_int(call: ServiceCall) -> None:
         """Set a IHC runtime integer value service function."""
         ihc_id = call.data[ATTR_IHC_ID]
         value = call.data[ATTR_VALUE]
         ihc_controller = _get_controller(call)
         await async_set_int(hass, ihc_controller, ihc_id, value)
 
-    async def async_set_runtime_value_float(call):
+    async def async_set_runtime_value_float(call: ServiceCall) -> None:
         """Set a IHC runtime float value service function."""
         ihc_id = call.data[ATTR_IHC_ID]
         value = call.data[ATTR_VALUE]
         ihc_controller = _get_controller(call)
         await async_set_float(hass, ihc_controller, ihc_id, value)
 
-    async def async_pulse_runtime_input(call):
+    async def async_pulse_runtime_input(call: ServiceCall) -> None:
         """Pulse a IHC controller input function."""
         ihc_id = call.data[ATTR_IHC_ID]
         ihc_controller = _get_controller(call)

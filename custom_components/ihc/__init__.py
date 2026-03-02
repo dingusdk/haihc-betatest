@@ -1,15 +1,15 @@
 """Support for IHC devices."""
+
 import logging
 
-from ihcsdk.ihccontroller import IHCController
+import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.typing import ConfigType
+from ihcsdk.ihccontroller import IHCController
 
 from .auto_setup import autosetup_ihc_products
 from .const import (
@@ -58,6 +58,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     password: str = entry.data[CONF_PASSWORD]
     autosetup: bool = entry.data[CONF_AUTOSETUP]
     ihc_controller: IHCController = IHCController(url, username, password)
+    #    ihc_controller.client.connection.min_interval = 0.1
+    #    ihc_controller.client.connection.logtiming = True
+
     if not await hass.async_add_executor_job(ihc_controller.authenticate):
         _LOGGER.error("Unable to authenticate on IHC controller")
         return False
@@ -77,7 +80,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.config_entries.async_forward_entry_setups(entry, IHC_PLATFORMS)
     )
     entry.add_update_listener(async_update_options)
-    # We only wan to register service functions once, in case you have multiple controllers
+    # We only wan to register service functions once, in case you have
+    # multiple controllers
     if len(hass.data[DOMAIN]) == 1:
         setup_service_functions(hass)
     return True
@@ -85,9 +89,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(
-        entry, IHC_PLATFORMS
-    )
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, IHC_PLATFORMS)
     if not unload_ok:
         return False
     ihc_controller = hass.data[DOMAIN][entry.entry_id][IHC_CONTROLLER]
@@ -107,23 +109,28 @@ async def setup_controller_device(
     hass: HomeAssistant, ihc_controller: IHCController, entry: ConfigEntry
 ) -> bool:
     """Register the IHC controller as a Home Assistant device."""
-    # We must have a controller id, and cast the unique_id from string | None to a string.
-    # we know it is not None because it will always be set to the controller serial during setup
-    assert entry.unique_id is not None
+    # We must have a controller id, and cast the unique_id from string | None
+    # to a string. we know it is not None because it will always be set to the
+    # controller serial during setup
+    if entry.unique_id is None:
+        return False
     controller_id: str = entry.unique_id
     system_info = await hass.async_add_executor_job(
         ihc_controller.client.get_system_info
     )
-    if not system_info:
+    if not system_info or not isinstance(system_info, dict):
         _LOGGER.error("Unable to get system information from IHC controller")
         return False
     device_registry = dr.async_get(hass)
+    model: str = (
+        f"{system_info.get('brand', '')} {system_info.get('hw_revision', '')}".strip()
+    )
     device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, controller_id)},
-        name=system_info["serial_number"],
+        name=system_info.get("serial_number", controller_id),
         manufacturer="Schneider Electric",
-        model=f"{system_info['brand']} {system_info['hw_revision']}",
-        sw_version=system_info["version"],
+        model=model,
+        sw_version=system_info.get("version", ""),
     )
     return True
