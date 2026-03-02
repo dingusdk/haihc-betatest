@@ -1,17 +1,21 @@
 """Support for IHC sensors."""
+
 from __future__ import annotations
 
-from ihcsdk.ihccontroller import IHCController
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_UNIT_OF_MEASUREMENT
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util.unit_system import TEMPERATURE_UNITS
 
 from .const import DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from ihcsdk.ihccontroller import IHCController
 
 
 async def async_setup_entry(
@@ -22,7 +26,7 @@ async def async_setup_entry(
     controller_data = hass.data[DOMAIN][entry.entry_id]
     ihc_controller: IHCController = controller_data[IHC_CONTROLLER]
     sensors = []
-    if "sensor" in controller_data and controller_data["sensor"]:
+    if controller_data.get("sensor"):
         for name, device in controller_data["sensor"].items():
             ihc_id = device["ihc_id"]
             product_cfg = device["product_cfg"]
@@ -58,7 +62,7 @@ class IHCSensor(IHCDevice, SensorEntity):
         if unit in TEMPERATURE_UNITS:
             self._attr_device_class = SensorDeviceClass.TEMPERATURE
 
-    def on_ihc_change(self, ihc_id, value):
+    def on_ihc_change(self, _ihc_id: int, value: Any) -> None:
         """Handle IHC resource change."""
         self._attr_native_value = value
         self.schedule_update_ha_state()

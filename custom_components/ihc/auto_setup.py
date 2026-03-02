@@ -1,16 +1,16 @@
 """Handle auto setup of IHC products from the ihc project file."""
+
 import logging
-import os.path
+from pathlib import Path
 
-from defusedxml import ElementTree
-from ihcsdk.ihccontroller import IHCController
+import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-
+from defusedxml import ElementTree
 from homeassistant.config import load_yaml_config_file
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_TYPE, CONF_UNIT_OF_MEASUREMENT, UnitOfTemperature
 from homeassistant.core import HomeAssistant
-import homeassistant.helpers.config_validation as cv
+from ihcsdk.ihccontroller import IHCController
 
 from .const import (
     AUTO_SETUP_YAML,
@@ -96,15 +96,17 @@ def autosetup_ihc_products(
 
     # If an auto setup file exist in the configuration it will override
     yaml_path = hass.config.path(AUTO_SETUP_YAML)
-    if not os.path.isfile(yaml_path):
-        yaml_path = os.path.join(os.path.dirname(__file__), AUTO_SETUP_YAML)
+    if not Path(yaml_path).is_file():
+        yaml_path = str(Path(__file__).parent / AUTO_SETUP_YAML)
     yaml = load_yaml_config_file(yaml_path)
     try:
         auto_setup_conf = AUTO_SETUP_SCHEMA(yaml)
-    except vol.Invalid as exception:
-        _LOGGER.error("Invalid IHC auto setup data: %s", exception)
+    except vol.Invalid:
+        _LOGGER.exception("Invalid IHC auto setup data")
         return False
-    assert entry.unique_id is not None
+    if entry.unique_id is None:
+        msg = "unique id not set"
+        raise ValueError(msg)
     controller_id: str = entry.unique_id
     groups = project.findall(".//group")
     for platform in IHC_PLATFORMS:
@@ -115,7 +117,7 @@ def autosetup_ihc_products(
     return True
 
 
-def get_discovery_info(platform_setup, groups, controller_id):
+def get_discovery_info(platform_setup: dict, groups: list, controller_id: str) -> dict:
     """Get discovery info for specified IHC platform."""
     discovery_data = {}
     for group in groups:

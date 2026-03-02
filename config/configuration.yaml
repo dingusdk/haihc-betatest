@@ -1,0 +1,43 @@
+homeassistant:
+  name: Home
+  unit_system: metric
+#  time_zone: "Europe/Copenhagen"
+
+
+#default_config:
+# integrations below are from the default_config
+#assist_pipeline:
+#backup:
+#bluetooth:
+config:
+# Allows you to issue voice commands from the frontend in enabled browsers
+#conversation:
+#dhcp:
+energy:
+# Enables support for tracking state changes over time
+history:
+homeassistant_alerts:
+#image_upload:
+logbook:
+#map:
+#media_source:
+#mobile_app:
+my:
+#ssdp:
+# stream:
+# Track the sun
+#sun:
+#usage_prediction:
+#usb:
+#webhook:
+#zeroconf:
+# END OF default_config
+
+
+logger:
+  default: warn
+  logs:
+    custom_components.ihc: debug
+
+#debugpy:
+#  wait: true

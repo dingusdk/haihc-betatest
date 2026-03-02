@@ -2,20 +2,23 @@
 
 from __future__ import annotations
 
-from ihcsdk.ihccontroller import IHCController
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_TYPE
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util.enum import try_parse_enum
 
 from .const import CONF_INVERTING, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from ihcsdk.ihccontroller import IHCController
 
 
 async def async_setup_entry(
@@ -26,7 +29,7 @@ async def async_setup_entry(
     controller_data = hass.data[DOMAIN][entry.entry_id]
     ihc_controller: IHCController = controller_data[IHC_CONTROLLER]
     sensors = []
-    if "binary_sensor" in controller_data and controller_data["binary_sensor"]:
+    if controller_data.get("binary_sensor"):
         for name, device in controller_data["binary_sensor"].items():
             ihc_id = device["ihc_id"]
             product_cfg = device["product_cfg"]
@@ -45,7 +48,8 @@ async def async_setup_entry(
 
 
 class IHCBinarySensor(IHCDevice, BinarySensorEntity):
-    """IHC Binary Sensor.
+    """
+    IHC Binary Sensor.
 
     The associated IHC resource can be any in or output from a IHC product
     or function block, but it must be a boolean ON/OFF resources.
@@ -66,7 +70,7 @@ class IHCBinarySensor(IHCDevice, BinarySensorEntity):
         self._attr_device_class = try_parse_enum(BinarySensorDeviceClass, sensor_type)
         self.inverting = inverting
 
-    def on_ihc_change(self, ihc_id, value):
+    def on_ihc_change(self, _ihc_id: int, value: Any) -> None:
         """IHC resource has changed."""
         if self.inverting:
             self._attr_is_on = not value

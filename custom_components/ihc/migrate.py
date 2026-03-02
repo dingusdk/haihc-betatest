@@ -1,24 +1,29 @@
 """Migrate old manual configuration from configuration.yaml."""
+
 import logging
-import os.path
+from pathlib import Path
+from typing import Any
 
-from ihcsdk.ihccontroller import IHCController
 import yaml
-
 from homeassistant.config import load_yaml_config_file
 from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from ihcsdk.ihccontroller import IHCController
 
 from .const import DOMAIN, IHC_PLATFORMS, MANUAL_SETUP_YAML
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def migrate_configuration(hass: HomeAssistant):
-    """Migrate the old manual configuration from configuration.yaml to ihc_manual_setup.yaml."""
+def migrate_configuration(hass: HomeAssistant) -> None:
+    """
+    Migrate the old manual configuration.
+
+    From configuration.yaml to ihc_manual_setup.yaml.
+    """
     yaml_manual_setup_path = hass.config.path(MANUAL_SETUP_YAML)
-    if os.path.exists(yaml_manual_setup_path):
+    if Path(yaml_manual_setup_path).exists():
         _LOGGER.warning(
             "The %s already exist. Migrating old configuration skipped",
             yaml_manual_setup_path,
@@ -36,7 +41,7 @@ def migrate_configuration(hass: HomeAssistant):
         conf = [conf]
     for controllerconf in conf:
         serial = get_controller_serial(controllerconf)
-        newcontrollerconf = {"controller": serial}
+        newcontrollerconf: dict[str, Any] = {"controller": serial}
         for component in IHC_PLATFORMS:
             if component in controllerconf and len(controllerconf[component]) > 0:
                 has_manual_config = True
@@ -53,7 +58,7 @@ def migrate_configuration(hass: HomeAssistant):
     if not has_manual_config:
         _LOGGER.debug("No manual configuration in old IHC configuration")
         return
-    with open(yaml_manual_setup_path, "w", encoding="utf8") as file:
+    with open(yaml_manual_setup_path, "w", encoding="utf8") as file:  # noqa: PTH123
         yaml.dump(newconf, file, default_flow_style=False, sort_keys=False)
     _LOGGER.warning(
         "Your old ihc configuration in configuration.yaml "
@@ -67,7 +72,7 @@ def migrate_configuration(hass: HomeAssistant):
     return
 
 
-def get_controller_serial(controllerconf):
+def get_controller_serial(controllerconf: dict[str, Any]) -> str:
     """Get the controller serial number. We use this as a controller id."""
     url = controllerconf[CONF_URL]
     username = controllerconf[CONF_USERNAME]
@@ -75,10 +80,16 @@ def get_controller_serial(controllerconf):
     controller = IHCController(url, username, password)
     try:
         if not IHCController.is_ihc_controller(url):
-            raise HomeAssistantError("IHC controller not available at specified url")
+            msg = "IHC controller not available at specified url"
+            raise HomeAssistantError(msg)
         if not controller.authenticate():
-            raise HomeAssistantError("unable to authencitate on IHC controller")
+            msg = "unable to authencitate on IHC controller"
+            raise HomeAssistantError(msg)
         system_info = controller.client.get_system_info()
+        if not system_info or not isinstance(system_info, dict):
+            msg = "Unable to get system information from IHC controller"
+            raise ValueError(msg)
+
         _LOGGER.debug("IHC system info %s", system_info)
         serial = system_info["serial_number"]
     finally:

@@ -1,13 +1,15 @@
 """Config flow for IHC integration."""
+
 import logging
+from typing import Any
 
-from ihcsdk.ihccontroller import IHCController
 import voluptuous as vol
-
 from homeassistant import config_entries, exceptions
+from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME
 from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import AbortFlow, FlowResult
+from homeassistant.data_entry_flow import AbortFlow
+from ihcsdk.ihccontroller import IHCController
 
 from .const import CONF_AUTOSETUP, DOMAIN
 from .util import get_controller_serial
@@ -24,8 +26,9 @@ DATA_SCHEMA = vol.Schema(
 )
 
 
-def do_validate(hass: HomeAssistant, user_input) -> str:
-    """Validate the user input.
+def do_validate(_hass: HomeAssistant, user_input: dict[str, Any]) -> str:
+    """
+    Validate the user input.
 
     Return the IHC controller serial number
     """
@@ -34,11 +37,11 @@ def do_validate(hass: HomeAssistant, user_input) -> str:
     password = user_input[CONF_PASSWORD]
     # Do we have an IHC controller on this url
     if not IHCController.is_ihc_controller(url):
-        raise CannotConnect()
+        raise CannotConnect
     ihc_controller = IHCController(url, username, password)
     try:
         if not ihc_controller.authenticate():
-            raise InvalidAuth()
+            raise InvalidAuth
         serial = get_controller_serial(ihc_controller)
     finally:
         ihc_controller.disconnect()
@@ -50,7 +53,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    async def async_step_user(self, user_input=None) -> FlowResult:
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Handle the initial step."""
         errors = {}
         if user_input is not None:

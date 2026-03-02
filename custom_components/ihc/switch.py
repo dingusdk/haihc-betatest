@@ -1,13 +1,13 @@
 """Support for IHC switches."""
+
 import logging
 from typing import Any
-
-from ihcsdk.ihccontroller import IHCController
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from ihcsdk.ihccontroller import IHCController
 
 from .const import CONF_OFF_ID, CONF_ON_ID, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
@@ -26,7 +26,7 @@ async def async_setup_entry(
     controller_data = hass.data[DOMAIN][entry.entry_id]
     ihc_controller: IHCController = controller_data[IHC_CONTROLLER]
     switches = []
-    if "switch" in controller_data and controller_data["switch"]:
+    if controller_data.get("switch"):
         for name, device in controller_data["switch"].items():
             ihc_id = device["ihc_id"]
             product_cfg = device["product_cfg"]
@@ -64,21 +64,25 @@ class IHCSwitch(IHCDevice, SwitchEntity):
         self._ihc_off_id = ihc_off_id
         self._ihc_on_id = ihc_on_id
 
-    async def async_turn_on(self, **kwargs: Any) -> None:
+    async def async_turn_on(self, **_kwargs: Any) -> None:
         """Turn the switch on."""
         if self._ihc_on_id:
             await async_pulse(self.hass, self.ihc_controller, self._ihc_on_id)
         else:
-            await async_set_bool(self.hass, self.ihc_controller, self.ihc_id, True)
+            await async_set_bool(
+                self.hass, self.ihc_controller, self.ihc_id, value=True
+            )
 
-    async def async_turn_off(self, **kwargs: Any) -> None:
+    async def async_turn_off(self, **_kwargs: Any) -> None:
         """Turn the device off."""
         if self._ihc_off_id:
             await async_pulse(self.hass, self.ihc_controller, self._ihc_off_id)
         else:
-            await async_set_bool(self.hass, self.ihc_controller, self.ihc_id, False)
+            await async_set_bool(
+                self.hass, self.ihc_controller, self.ihc_id, value=False
+            )
 
-    def on_ihc_change(self, ihc_id, value):
+    def on_ihc_change(self, _ihc_id: int, value: Any) -> None:
         """Handle IHC resource change."""
         self._attr_is_on = value
         self.schedule_update_ha_state()
