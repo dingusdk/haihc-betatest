@@ -9,6 +9,9 @@ from .const import (
     ATTR_CONTROLLER_ID,
     ATTR_IHC_ID,
     ATTR_VALUE,
+    ATTR_VALUE_HOUR,
+    ATTR_VALUE_MINUTE,
+    ATTR_VALUE_SECOND,
     DOMAIN,
     IHC_CONTROLLER,
     IHC_CONTROLLER_ID,
@@ -16,6 +19,8 @@ from .const import (
     SERVICE_SET_RUNTIME_VALUE_BOOL,
     SERVICE_SET_RUNTIME_VALUE_FLOAT,
     SERVICE_SET_RUNTIME_VALUE_INT,
+    SERVICE_SET_RUNTIME_VALUE_TIME,
+    SERVICE_SET_RUNTIME_VALUE_TIMER,
 )
 from .util import async_pulse, async_set_bool, async_set_float, async_set_int
 
@@ -46,6 +51,32 @@ SET_RUNTIME_VALUE_FLOAT_SCHEMA = vol.Schema(
 PULSE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_IHC_ID): cv.positive_int,
+        vol.Optional(ATTR_CONTROLLER_ID, default=""): cv.string,
+    }
+)
+
+SET_RUNTIME_VALUE_TIMER_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_IHC_ID): cv.positive_int,
+        vol.Required(ATTR_VALUE): vol.Coerce(int),
+        vol.Optional(ATTR_CONTROLLER_ID, default=""): cv.string,
+    }
+)
+
+SET_RUNTIME_VALUE_TIME_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_IHC_ID): cv.positive_int,
+        # hour must be an integer in [0,23]
+        vol.Optional(ATTR_VALUE_HOUR, default=0): vol.All(
+            vol.Coerce(int), vol.Range(min=0, max=23)
+        ),
+        # minute/second coerced to int and bounded to typical ranges
+        vol.Optional(ATTR_VALUE_MINUTE, default=0): vol.All(
+            vol.Coerce(int), vol.Range(min=0, max=59)
+        ),
+        vol.Optional(ATTR_VALUE_SECOND, default=0): vol.All(
+            vol.Coerce(int), vol.Range(min=0, max=59)
+        ),
         vol.Optional(ATTR_CONTROLLER_ID, default=""): cv.string,
     }
 )
@@ -91,6 +122,30 @@ def setup_service_functions(hass: HomeAssistant) -> None:
         ihc_controller = _get_controller(call)
         await async_pulse(hass, ihc_controller, ihc_id)
 
+    async def async_set_runtime_value_timer(call: ServiceCall) -> None:
+        """Set a IHC runtime integer value service function."""
+        ihc_id = call.data[ATTR_IHC_ID]
+        value = call.data[ATTR_VALUE]
+        ihc_controller = _get_controller(call)
+        await hass.async_add_executor_job(
+            ihc_controller.set_runtime_value_timer, ihc_id, value
+        )
+
+    async def async_set_runtime_value_time(call: ServiceCall) -> None:
+        """Set a IHC runtime integer value service function."""
+        ihc_id = call.data[ATTR_IHC_ID]
+        value_hour = call.data[ATTR_VALUE_HOUR]
+        value_minute = call.data[ATTR_VALUE_MINUTE]
+        value_second = call.data[ATTR_VALUE_SECOND]
+        ihc_controller = _get_controller(call)
+        await hass.async_add_executor_job(
+            ihc_controller.set_runtime_value_time,
+            ihc_id,
+            value_hour,
+            value_minute,
+            value_second,
+        )
+
     hass.services.async_register(
         DOMAIN,
         SERVICE_SET_RUNTIME_VALUE_BOOL,
@@ -111,4 +166,16 @@ def setup_service_functions(hass: HomeAssistant) -> None:
     )
     hass.services.async_register(
         DOMAIN, SERVICE_PULSE, async_pulse_runtime_input, schema=PULSE_SCHEMA
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_RUNTIME_VALUE_TIMER,
+        async_set_runtime_value_timer,
+        schema=SET_RUNTIME_VALUE_TIMER_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_RUNTIME_VALUE_TIME,
+        async_set_runtime_value_time,
+        schema=SET_RUNTIME_VALUE_TIME_SCHEMA,
     )

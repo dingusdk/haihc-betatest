@@ -108,3 +108,78 @@ pulse:
           min: 0
           max: 1000000
           mode: box
+
+set_runtime_value_timer:
+  name: Set runtime value timer
+  description: Set an timer runtime value in milli seconds on the IHC controller.
+  fields:
+    controller_id:
+      name: Controller ID
+      description: |
+        The controller ID is the serial number of the IHC controller.
+        If you have only one controller you can skip this parameter
+      selector:
+        text:
+    ihc_id:
+      name: IHC ID
+      description: The integer IHC resource ID. (Must be a timer resource)
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
+    value:
+      name: Value
+      description: The timer value in milliseconds to set.
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
+
+set_runtime_value_time:
+  name: Set runtime value time
+  description: Set an time runtime value on the IHC controller.
+  fields:
+    controller_id:
+      name: Controller ID
+      description: |
+        The controller ID is the serial number of the IHC controller.
+        If you have only one controller you can skip this parameter
+      selector:
+        text:
+    ihc_id:
+      name: IHC ID
+      description: The integer IHC resource ID. (Must be a time resource)
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
+    value_hour:
+      name: Hour value
+      description: The hour part of the time value to set.
+      selector:
+        number:
+          min: 0
+          max: 23
+          mode: box
+    value_minute:
+      name: Minute value
+      description: The minute part of the time value to set.
+      selector:
+        number:
+          min: 0
+          max: 59
+          mode: box
+    value_second:
+      name: Second value
+      description: The second part of the time value to set.
+      selector:
+        number:
+          min: 0
+          max: 59
+          mode: box
