@@ -1,9 +1,13 @@
 """IHC component constants."""
+
 from homeassistant.const import Platform
 
 ATTR_CONTROLLER_ID = "controller_id"
 ATTR_IHC_ID = "ihc_id"
 ATTR_VALUE = "value"
+ATTR_VALUE_HOUR = "value_hour"
+ATTR_VALUE_MINUTE = "value_minute"
+ATTR_VALUE_SECOND = "value_second"
 
 AUTO_SETUP_YAML = "ihc_auto_setup.yaml"
 
@@ -39,4 +43,6 @@ MANUAL_SETUP_YAML = "ihc_manual_setup.yaml"
 SERVICE_SET_RUNTIME_VALUE_BOOL = "set_runtime_value_bool"
 SERVICE_SET_RUNTIME_VALUE_FLOAT = "set_runtime_value_float"
 SERVICE_SET_RUNTIME_VALUE_INT = "set_runtime_value_int"
+SERVICE_SET_RUNTIME_VALUE_TIMER = "set_runtime_value_timer"
+SERVICE_SET_RUNTIME_VALUE_TIME = "set_runtime_value_time"
 SERVICE_PULSE = "pulse"
