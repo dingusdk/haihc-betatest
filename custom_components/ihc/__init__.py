@@ -19,6 +19,7 @@ from .const import (
     IHC_CONTROLLER,
     IHC_CONTROLLER_ID,
     IHC_PLATFORMS,
+    SERVICE_PULSE,
 )
 from .manual_setup import MANUAL_SETUP_SCHEMA, manual_setup
 from .migrate import migrate_configuration
@@ -88,9 +89,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.async_add_executor_job(manual_setup, hass, entry)
     await hass.config_entries.async_forward_entry_setups(entry, IHC_PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_update_options))
-    # We only wan to register service functions once, in case you have
-    # multiple controllers
-    if len(hass.data[DOMAIN]) == 1:
+    # We only want to register service functions once, in case you have
+    # multiple controllers. Counting the controllers does not work for that:
+    # Home Assistant sets them up at the same time, so by the time each one
+    # gets here the others are in hass.data too - none of them sees a count of
+    # one, and the services were never registered.
+    if not hass.services.has_service(DOMAIN, SERVICE_PULSE):
         setup_service_functions(hass)
     return True
 
