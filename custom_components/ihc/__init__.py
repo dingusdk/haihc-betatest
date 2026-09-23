@@ -17,6 +17,7 @@ from .const import (
     CONF_AUTOSETUP,
     DOMAIN,
     IHC_CONTROLLER,
+    IHC_CONTROLLER_DEVICE_ID,
     IHC_CONTROLLER_ID,
     IHC_PLATFORMS,
 )
@@ -136,7 +137,7 @@ async def setup_controller_device(
     model: str = (
         f"{system_info.get('brand', '')} {system_info.get('hw_revision', '')}".strip()
     )
-    device_registry.async_get_or_create(
+    device = device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, controller_id)},
         name=system_info.get("serial_number", controller_id),
@@ -144,4 +145,7 @@ async def setup_controller_device(
         model=model,
         sw_version=system_info.get("version", ""),
     )
+    # The products are connected via the controller. They point to it by its
+    # device id - "via_device" with the identifier stops working in 2027.8.
+    hass.data[DOMAIN][entry.entry_id][IHC_CONTROLLER_DEVICE_ID] = device.id
     return True

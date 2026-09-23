@@ -6,7 +6,7 @@ from typing import Any
 from homeassistant.helpers.entity import Entity
 from ihcsdk.ihccontroller import IHCController
 
-from .const import DOMAIN
+from .const import DOMAIN, IHC_CONTROLLER_DEVICE_ID, IHC_CONTROLLER_ID
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -110,5 +110,12 @@ class IHCDevice(Entity):
             "suggested_area": self.suggested_area,
             "model": self.device_model,
             "sw_version": "",
-            "via_device": (DOMAIN, self.controller_id),
+            "via_device_id": self.controller_device_id(),
         }
+
+    def controller_device_id(self) -> str | None:
+        """Return the device registry id of the controller this device is on."""
+        for data in self.hass.data[DOMAIN].values():
+            if data[IHC_CONTROLLER_ID] == self.controller_id:
+                return data.get(IHC_CONTROLLER_DEVICE_ID)
+        return None

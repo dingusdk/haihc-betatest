@@ -30,6 +30,7 @@ DOMAIN = "ihc"
 
 IHC_CONTROLLER = "controller"
 IHC_CONTROLLER_ID = "controller_id"
+IHC_CONTROLLER_DEVICE_ID = "controller_device_id"
 IHC_CONTROLLER_INDEX = "controller_index"
 IHC_PLATFORMS = (
     Platform.BINARY_SENSOR,
