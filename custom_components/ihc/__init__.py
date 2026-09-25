@@ -1,5 +1,6 @@
 """Support for IHC devices."""
 
+import asyncio
 import logging
 
 import homeassistant.helpers.config_validation as cv
@@ -25,6 +26,11 @@ from .migrate import migrate_configuration
 from .service_functions import setup_service_functions, unload_service_functions
 
 _LOGGER = logging.getLogger(__name__)
+
+# How long to wait for the SDK to disconnect during unload (seconds).
+# Must exceed the time a hanging request takes to fail, which is the read
+# timeout times the retries plus one (see util.REQUEST_TIMEOUT).
+DISCONNECT_TIMEOUT = 90
 
 """
 CONFIG_SCHEMA is not used by the setup anymore. It is there to make hassfest happy.
@@ -102,8 +108,19 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return False
     ihc_controller = hass.data[DOMAIN][entry.entry_id][IHC_CONTROLLER]
     # disconnect blocks while waiting for the notify thread to end,
-    # so it must run in an executor to not block the event loop
-    await hass.async_add_executor_job(ihc_controller.disconnect)
+    # so it must run in an executor to not block the event loop.
+    # The notify thread ends when its current long poll returns, which
+    # the request timeout guarantees. Give up after that so a reload can
+    # never hang in "unload in progress" if it does not.
+    try:
+        await asyncio.wait_for(
+            hass.async_add_executor_job(ihc_controller.disconnect),
+            timeout=DISCONNECT_TIMEOUT,
+        )
+    except TimeoutError:
+        _LOGGER.warning(
+            "Timeout waiting for the IHC notify thread to stop, continuing unload"
+        )
     hass.data[DOMAIN].pop(entry.entry_id)
     if not hass.data[DOMAIN]:
         hass.data.pop(DOMAIN)
