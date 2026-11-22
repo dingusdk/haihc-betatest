@@ -12,6 +12,7 @@ from homeassistant.const import CONF_TYPE, CONF_UNIT_OF_MEASUREMENT, UnitOfTempe
 from homeassistant.core import HomeAssistant
 from ihcsdk.ihccontroller import IHCController
 
+from .airlink import AIRLINK_PRODUCTS, get_airlink_products
 from .const import (
     AUTO_SETUP_YAML,
     CONF_BINARY_SENSOR,
@@ -129,6 +130,9 @@ def autosetup_ihc_products(
         discovery_info = get_discovery_info(platform_setup, groups, controller_id)
         if discovery_info:
             hass.data[DOMAIN][entry.entry_id][platform] = discovery_info
+    hass.data[DOMAIN][entry.entry_id][AIRLINK_PRODUCTS] = get_airlink_products(
+        groups, controller_id
+    )
     return True
 
 

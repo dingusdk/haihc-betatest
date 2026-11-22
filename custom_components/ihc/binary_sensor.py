@@ -11,6 +11,7 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.const import CONF_TYPE
 from homeassistant.util.enum import try_parse_enum
 
+from .airlink import AirlinkCoordinator, AirlinkEntity, airlink_devices
 from .const import CONF_INVERTING, DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
 
@@ -45,6 +46,13 @@ async def async_setup_entry(
             )
             sensors.append(sensor)
         async_add_entities(sensors)
+    coordinator, airlink_products = airlink_devices(controller_data)
+    if coordinator:
+        async_add_entities(
+            IHCAirlinkBatterySensor(coordinator, serial, device)
+            for serial, device in airlink_products.items()
+            if device["battery_powered"]
+        )
 
 
 class IHCBinarySensor(IHCDevice, BinarySensorEntity):
@@ -77,3 +85,20 @@ class IHCBinarySensor(IHCDevice, BinarySensorEntity):
         else:
             self._attr_is_on = value
         self.schedule_update_ha_state()
+
+
+class IHCAirlinkBatterySensor(AirlinkEntity, BinarySensorEntity):
+    """Low battery on a battery powered wireless product."""
+
+    _attr_device_class = BinarySensorDeviceClass.BATTERY
+
+    def __init__(
+        self, coordinator: AirlinkCoordinator, serial: int, device: dict
+    ) -> None:
+        """Initialize the battery sensor."""
+        super().__init__(coordinator, serial, device, "battery")
+
+    @property
+    def is_on(self) -> bool:
+        """Return true when the battery is low."""
+        return self.device_data["battery_level"] == 0

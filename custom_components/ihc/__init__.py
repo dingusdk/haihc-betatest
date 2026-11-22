@@ -13,6 +13,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.typing import ConfigType
 from ihcsdk.ihccontroller import IHCController
 
+from .airlink import AIRLINK_COORDINATOR, AIRLINK_PRODUCTS, AirlinkCoordinator
 from .auto_setup import autosetup_ihc_products
 from .const import (
     CONF_AUTOSETUP,
@@ -94,6 +95,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         msg = "Unable to read project from IHC controller"
         raise ConfigEntryNotReady(msg)
     await hass.async_add_executor_job(manual_setup, hass, entry)
+    if hass.data[DOMAIN][entry.entry_id].get(AIRLINK_PRODUCTS):
+        coordinator = AirlinkCoordinator(hass, entry, ihc_controller)
+        # A failed first read only makes the diagnostics unavailable,
+        # it must not stop the lights and switches from loading.
+        await coordinator.async_refresh()
+        hass.data[DOMAIN][entry.entry_id][AIRLINK_COORDINATOR] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, IHC_PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_update_options))
     # We only want to register service functions once, in case you have
