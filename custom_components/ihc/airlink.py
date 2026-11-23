@@ -3,7 +3,7 @@ Airlink (wireless) diagnostics for IHC products.
 
 The controller keeps the battery level and the last received signal strength
 of every wireless product. They are read with
-AirlinkManagementService.getDetectedDeviceList and matched to the products in
+the ihcsdk get_detected_device_list and matched to the products in
 the project file by serial number.
 """
 
@@ -40,11 +40,6 @@ AIRLINK_UPDATE_INTERVAL = timedelta(minutes=10)
 BATTERY_PRODUCT_PREFIX = "0x41"
 
 
-def _local(tag: str) -> str:
-    """Return the tag name without the namespace."""
-    return tag.rsplit("}", 1)[-1]
-
-
 def get_airlink_products(groups: list[Element], controller_id: str) -> dict:
     """Return the wireless products in the project, keyed by serial number."""
     products = {}
@@ -72,25 +67,10 @@ def get_airlink_products(groups: list[Element], controller_id: str) -> dict:
 
 def read_detected_devices(ihc_controller: IHCController) -> dict[int, dict] | None:
     """Read the wireless devices the controller knows, keyed by serial number."""
-    xdoc = ihc_controller.client.connection.soap_action(
-        "/ws/AirlinkManagementService", "getDetectedDeviceList", ""
-    )
-    if xdoc is False:
+    devices = ihc_controller.client.get_detected_device_list()
+    if devices is False:
         return None
-    devices = {}
-    for item in xdoc.iter():
-        if _local(item.tag) != "arrayItem":
-            continue
-        values = {_local(child.tag): child.text for child in item}
-        try:
-            devices[int(values["serialNumber"])] = {
-                "battery_level": int(values["batteryLevel"]),
-                "signal_strength": int(values["signalStrength"]),
-                "detected": values.get("detected") == "true",
-            }
-        except (KeyError, TypeError, ValueError):
-            _LOGGER.debug("Skipping unreadable airlink device: %s", values)
-    return devices
+    return {device["serial_number"]: device for device in devices}
 
 
 class AirlinkCoordinator(DataUpdateCoordinator[dict[int, dict]]):
