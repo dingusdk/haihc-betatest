@@ -4,10 +4,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.const import CONF_UNIT_OF_MEASUREMENT
 from homeassistant.util.unit_system import TEMPERATURE_UNITS
 
+from .airlink import AirlinkCoordinator, AirlinkEntity, airlink_devices
 from .const import DOMAIN, IHC_CONTROLLER
 from .ihcdevice import IHCDevice
 
@@ -42,6 +47,12 @@ async def async_setup_entry(
             )
             sensors.append(sensor)
         async_add_entities(sensors)
+    coordinator, airlink_products = airlink_devices(controller_data)
+    if coordinator:
+        async_add_entities(
+            IHCAirlinkSignalSensor(coordinator, serial, device)
+            for serial, device in airlink_products.items()
+        )
 
 
 class IHCSensor(IHCDevice, SensorEntity):
@@ -66,3 +77,27 @@ class IHCSensor(IHCDevice, SensorEntity):
         """Handle IHC resource change."""
         self._attr_native_value = value
         self.schedule_update_ha_state()
+
+
+class IHCAirlinkSignalSensor(AirlinkEntity, SensorEntity):
+    """
+    Signal strength of the last radio message from a wireless product.
+
+    The controller reports 0 until it has received something from the
+    product, so 0 is shown as unknown.
+    """
+
+    _attr_name = "Airlink signal"
+    _attr_icon = "mdi:signal"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self, coordinator: AirlinkCoordinator, serial: int, device: dict
+    ) -> None:
+        """Initialize the signal sensor."""
+        super().__init__(coordinator, serial, device, "signal")
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the signal strength."""
+        return self.device_data["signal_strength"] or None
