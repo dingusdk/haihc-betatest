@@ -25,6 +25,7 @@ from .const import (
     DOMAIN,
     IHC_PLATFORMS,
     MANUAL_SETUP_YAML,
+    PRODUCT_RESOURCES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -177,6 +178,7 @@ def manual_setup(hass: HomeAssistant, entry: ConfigEntry) -> None:
     if controller_conf is None:
         return
     remove_auto_setup_duplicates(hass, entry, controller_conf)
+    product_resources = hass.data[DOMAIN][entry.entry_id].get(PRODUCT_RESOURCES, {})
     # Get manual configuration for IHC devices
     for platform in IHC_PLATFORMS:
         discovery_info = {}
@@ -185,14 +187,18 @@ def manual_setup(hass: HomeAssistant, entry: ConfigEntry) -> None:
             warn_duplicate_ids(platform_setup, platform)
             for sensor_cfg in platform_setup:
                 name = sensor_cfg[CONF_NAME]
+                # A resource that belongs to a product in the project (like a
+                # button on a wireless push button) goes on that product's
+                # device. The entity keeps the name from the configuration.
+                product = product_resources.get(sensor_cfg[CONF_ID]) or {
+                    "name": name,
+                    "note": sensor_cfg.get(CONF_NOTE) or "",
+                    "position": sensor_cfg.get(CONF_POSITION) or "",
+                }
                 device = {
                     "ihc_id": sensor_cfg[CONF_ID],
                     "ctrl_id": controller_id,
-                    "product": {
-                        "name": name,
-                        "note": sensor_cfg.get(CONF_NOTE) or "",
-                        "position": sensor_cfg.get(CONF_POSITION) or "",
-                    },
+                    "product": product,
                     "product_cfg": {
                         "type": sensor_cfg.get(CONF_TYPE),
                         "inverting": sensor_cfg.get(CONF_INVERTING),
