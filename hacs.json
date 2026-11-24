@@ -1,5 +1,5 @@
 {
-    "name": "IHC Beta Test Integration",
+    "name": "IHC 2.0 Integration",
     "hacs": "2.0.5",
     "iot_class": "Local Push",
     "homeassistant": "2026.1.1"
