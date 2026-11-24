@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+from xml.etree.ElementTree import Element
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
@@ -24,6 +25,7 @@ from .const import (
     CONF_XPATH,
     DOMAIN,
     IHC_PLATFORMS,
+    PRODUCT_RESOURCES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -129,7 +131,40 @@ def autosetup_ihc_products(
         discovery_info = get_discovery_info(platform_setup, groups, controller_id)
         if discovery_info:
             hass.data[DOMAIN][entry.entry_id][platform] = discovery_info
+    hass.data[DOMAIN][entry.entry_id][PRODUCT_RESOURCES] = get_product_resources(groups)
     return True
+
+
+def get_product_info(product: Element, groupname: str) -> dict:
+    """Return the device information for a product in the project."""
+    return {
+        "id": int(product.attrib["id"].strip("_"), 0),
+        "name": product.get("name") or "",
+        "note": product.get("note") or "",
+        "position": product.get("position") or "",
+        # make the model number look a bit nicer - strip leading _
+        "model": product.get("product_identifier", "").lstrip("_"),
+        "group": groupname,
+    }
+
+
+def get_product_resources(groups: list) -> dict[int, dict]:
+    """Return the product of every resource in the project, by resource id."""
+    resources = {}
+    for group in groups:
+        groupname = group.attrib["name"]
+        for product in group.iter():
+            if not product.tag.startswith("product_") or "id" not in product.attrib:
+                continue
+            info = get_product_info(product, groupname)
+            for node in product.iter():
+                if node is product or "id" not in node.attrib:
+                    continue
+                try:
+                    resources[int(node.attrib["id"].strip("_"), 0)] = info
+                except ValueError:
+                    continue
+    return resources
 
 
 def get_discovery_info(platform_setup: dict, groups: list, controller_id: str) -> dict:
@@ -140,26 +175,16 @@ def get_discovery_info(platform_setup: dict, groups: list, controller_id: str) -
         for product_cfg in platform_setup:
             products = group.findall(product_cfg[CONF_XPATH])
             for product in products:
-                product_id = int(product.attrib["id"].strip("_"), 0)
                 nodes = product.findall(product_cfg[CONF_NODE])
                 for node in nodes:
                     if "setting" in node.attrib and node.attrib["setting"] == "yes":
                         continue
                     ihc_id = int(node.attrib["id"].strip("_"), 0)
                     name = f"{groupname}_{ihc_id}"
-                    # make the model number look a bit nicer - strip leading _
-                    model = product.get("product_identifier", "").lstrip("_")
                     device = {
                         "ihc_id": ihc_id,
                         "ctrl_id": controller_id,
-                        "product": {
-                            "id": product_id,
-                            "name": product.get("name") or "",
-                            "note": product.get("note") or "",
-                            "position": product.get("position") or "",
-                            "model": model,
-                            "group": groupname,
-                        },
+                        "product": get_product_info(product, groupname),
                         "product_cfg": product_cfg,
                     }
                     discovery_data[name] = device

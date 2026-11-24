@@ -40,6 +40,9 @@ IHC_PLATFORMS = (
 )
 
 MANUAL_SETUP_YAML = "ihc_manual_setup.yaml"
+# Resource id -> product in the project, used to put manually set up
+# resources on the device of the product they belong to.
+PRODUCT_RESOURCES = "product_resources"
 
 SERVICE_SET_RUNTIME_VALUE_BOOL = "set_runtime_value_bool"
 SERVICE_SET_RUNTIME_VALUE_FLOAT = "set_runtime_value_float"
